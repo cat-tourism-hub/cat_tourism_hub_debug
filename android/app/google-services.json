@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "70758533530",
+    "project_id": "tourism-hub",
+    "storage_bucket": "tourism-hub.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:70758533530:android:24f765d43cb78c3fc05223",
+        "android_client_info": {
+          "package_name": "com.tourismhub.happyisland"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAF-nm-KwqOY_EmB8Qlvzmyw6RQ3Cbwnfc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
