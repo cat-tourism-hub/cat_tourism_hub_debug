@@ -1,12 +1,14 @@
 import 'package:cat_tourism_hub/auth/sign_in.dart';
-import 'package:cat_tourism_hub/business/sections/setup.dart';
+import 'package:cat_tourism_hub/business/sections/admin_panel.dart';
 import 'package:cat_tourism_hub/business/sign_up.dart';
 import 'package:cat_tourism_hub/business/splash.dart';
 import 'package:cat_tourism_hub/firebase_options.dart';
 import 'package:cat_tourism_hub/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/providers/establishment_provider.dart';
-import 'package:cat_tourism_hub/providers/hotel_rooms_provider.dart';
+import 'package:cat_tourism_hub/providers/product_provider.dart';
+import 'package:cat_tourism_hub/providers/partners_provider.dart';
 import 'package:cat_tourism_hub/users/homepage.dart';
+import 'package:cat_tourism_hub/utils/snackbar_helper.dart';
 import 'package:cat_tourism_hub/values/strings.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +29,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
-
   final GoRouter _router = GoRouter(
       redirect: (context, state) {
         final AuthenticationProvider provider =
@@ -68,7 +69,7 @@ class MyApp extends StatelessWidget {
         GoRoute(
             path: '/setup',
             name: 'setup',
-            builder: (context, state) => const Setup()),
+            builder: (context, state) => const AdminPanel()),
         GoRoute(
             path: '/sign-in',
             name: 'sign-in',
@@ -85,22 +86,29 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (_) => EstablishmentProvider()),
-        ChangeNotifierProvider(create: (_) => HotelProvider()),
+        ChangeNotifierProvider(create: (_) => PartnersProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
       ],
       child: MaterialApp.router(
+        scaffoldMessengerKey: SnackbarHelper.key,
         title: AppStrings.appName,
         theme: ThemeData(
+          scaffoldBackgroundColor: Colors.white,
+          cardTheme: const CardTheme(
+              color: Color.fromARGB(255, 247, 247, 247),
+              shadowColor: Color.fromARGB(255, 41, 102, 233),
+              elevation: 5),
           textTheme: const TextTheme(
-              headlineMedium: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
               headlineLarge: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600),
+                  fontFamily: 'Montserrat',
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold),
+              headlineMedium: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 18,
+                  fontWeight: FontWeight.normal),
               headlineSmall: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Montserrat',
                   fontSize: 16,
                   fontWeight: FontWeight.w600),
               labelLarge: TextStyle(
@@ -109,12 +117,12 @@ class MyApp extends StatelessWidget {
                   fontWeight: FontWeight.bold),
               labelMedium: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold),
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal),
               labelSmall: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 12,
-                  fontWeight: FontWeight.bold),
+                  fontWeight: FontWeight.normal),
               bodyMedium: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 16,

@@ -1,6 +1,4 @@
-import 'package:cat_tourism_hub/values/strings.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class CustomTabBar extends StatelessWidget {
   const CustomTabBar(
@@ -27,12 +25,6 @@ class CustomTabBar extends StatelessWidget {
             child: TabBar(
               controller: controller,
               tabs: tabs,
-              onTap: (index) {
-                if (page == AppStrings.homepage && index == tabs.length - 1) {
-                  // Redirect to the sign-in page if the last tab (Login) is selected
-                  context.go('/sign-in');
-                }
-              },
             )),
       ],
     );

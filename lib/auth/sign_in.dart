@@ -119,57 +119,49 @@ class _SignInState extends State<SignIn> {
           ),
           Center(
             child: Card(
-              elevation: 5,
               color: const Color.fromARGB(207, 255, 255, 255),
-              child: SizedBox(
-                width:
-                    screenWidth < 1000 ? screenWidth * 0.9 : screenWidth * 0.5,
-                child: Padding(
-                  padding: screenWidth < 1000
-                      ? const EdgeInsets.all(10)
-                      : const EdgeInsetsDirectional.fromSTEB(
-                          20.0, 0.0, 20.0, 0.0),
-                  child: SingleChildScrollView(
+              child: SingleChildScrollView(
+                child: SizedBox(
+                  width: screenWidth < 1000
+                      ? screenWidth * 0.9
+                      : screenWidth * 0.5,
+                  child: Padding(
+                    padding: screenWidth < 1000
+                        ? const EdgeInsets.all(10)
+                        : const EdgeInsetsDirectional.fromSTEB(
+                            20.0, 0.0, 20.0, 0.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Row(
+                        Row(
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             Expanded(
                               child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
                                     0.0, 40.0, 0.0, 12.0),
                                 child: Text(
                                   AppStrings.appName,
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 34.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style:
+                                      Theme.of(context).textTheme.headlineLarge,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        const Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
+                        Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
                               0.0, 16.0, 0.0, 4.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Text(
-                                'Welcome Back,',
-                                style: TextStyle(
-                                  fontFamily: 'Readex Pro',
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                              Text('Welcome Back,',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium),
                             ],
                           ),
                         ),
@@ -272,7 +264,7 @@ class _SignInState extends State<SignIn> {
                                 ),
                                 TextButton(
                                   onPressed: () =>
-                                      context.go('/business/sign-up'),
+                                      context.push('/business/sign-up'),
                                   child: const Text('Be a Partner'),
                                 ),
                               ],

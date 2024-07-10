@@ -56,7 +56,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.apartment),
+                                  leading: const Icon(Icons.apartment_outlined),
                                   title: Text(
                                     value.establishment!.name!,
                                     style:
@@ -68,7 +68,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.domain),
+                                  leading: const Icon(Icons.domain_outlined),
                                   title: Text(value.establishment!.type!),
                                 ),
                               ),
@@ -84,7 +84,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             ),
                             Card(
                               child: ListTile(
-                                leading: const Icon(Icons.apartment),
+                                leading: const Icon(Icons.apartment_outlined),
                                 title: Text(
                                   value.establishment!.name!,
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -98,7 +98,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             ),
                             Card(
                               child: ListTile(
-                                leading: const Icon(Icons.domain),
+                                leading: const Icon(Icons.domain_outlined),
                                 title: Text(value.establishment!.type!),
                               ),
                             ),
@@ -133,7 +133,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.info),
+                                  leading: const Icon(Icons.info_outline),
                                   title: Text(
                                     value.establishment!.about!,
                                     style:
@@ -145,7 +145,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.pending),
+                                  leading: const Icon(Icons.pending_outlined),
                                   title: Text(
                                     value.establishment!.status!,
                                     style:
@@ -165,7 +165,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             ),
                             Card(
                               child: ListTile(
-                                leading: const Icon(Icons.info),
+                                leading: const Icon(Icons.info_outline),
                                 title: Text(
                                   value.establishment!.about!,
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -179,7 +179,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             ),
                             Card(
                               child: ListTile(
-                                leading: const Icon(Icons.pending),
+                                leading: const Icon(Icons.pending_outlined),
                                 title: Text(
                                   value.establishment!.status!,
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -225,7 +225,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.phone),
+                                  leading: const Icon(Icons.phone_outlined),
                                   title: Text(
                                     value.establishment!.contact!['phone'],
                                     style:
@@ -237,7 +237,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.email),
+                                  leading: const Icon(Icons.email_outlined),
                                   title: Text(
                                     value.establishment!.contact!['email'],
                                     style:
@@ -257,7 +257,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             ),
                             Card(
                               child: ListTile(
-                                leading: const Icon(Icons.phone),
+                                leading: const Icon(Icons.phone_outlined),
                                 title: Text(
                                   value.establishment!.contact!['phone'],
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -271,7 +271,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             ),
                             Card(
                               child: ListTile(
-                                leading: const Icon(Icons.email),
+                                leading: const Icon(Icons.email_outlined),
                                 title: Text(
                                   value.establishment!.contact!['email'],
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -308,7 +308,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.facebook),
+                                  leading: const Icon(Icons.facebook_outlined),
                                   title: Text(
                                     value
                                         .establishment!.contact!['social_link'],
@@ -321,7 +321,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.public),
+                                  leading: const Icon(Icons.public_outlined),
                                   title: Text(
                                     value.establishment!.contact!['website'],
                                     style:
@@ -341,7 +341,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             ),
                             Card(
                               child: ListTile(
-                                leading: const Icon(Icons.facebook),
+                                leading: const Icon(Icons.facebook_outlined),
                                 title: Text(
                                   value.establishment!.contact!['social_link'],
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -355,7 +355,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             ),
                             Card(
                               child: ListTile(
-                                leading: const Icon(Icons.public),
+                                leading: const Icon(Icons.public_outlined),
                                 title: Text(
                                   value.establishment!.contact!['website'],
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -400,7 +400,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.apartment),
+                                  leading: const Icon(Icons.apartment_outlined),
                                   title: Text(
                                     value.establishment!.location!['bldg'],
                                     style:
@@ -412,7 +412,8 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.navigation),
+                                  leading:
+                                      const Icon(Icons.navigation_outlined),
                                   title: Text(
                                     value.establishment!.location!['street'],
                                     style:
@@ -432,7 +433,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             ),
                             Card(
                               child: ListTile(
-                                leading: const Icon(Icons.apartment),
+                                leading: const Icon(Icons.apartment_outlined),
                                 title: Text(
                                   value.establishment!.location!['bldg'],
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -446,7 +447,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             ),
                             Card(
                               child: ListTile(
-                                leading: const Icon(Icons.navigation),
+                                leading: const Icon(Icons.navigation_outlined),
                                 title: Text(
                                   value.establishment!.location!['street'],
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -483,7 +484,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.explore),
+                                  leading: const Icon(Icons.explore_outlined),
                                   title: Text(
                                     value.establishment!.location!['brgy'],
                                     style:
@@ -495,7 +496,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                             Expanded(
                               child: Card(
                                 child: ListTile(
-                                  leading: const Icon(Icons.map),
+                                  leading: const Icon(Icons.map_outlined),
                                   title: Text(
                                     value.establishment!
                                         .location!['municipality'],

@@ -2,14 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cat_tourism_hub/models/establishment.dart';
 import 'package:cat_tourism_hub/models/photo.dart';
-import 'package:cat_tourism_hub/queries/sql_query.dart';
-
+import 'package:cat_tourism_hub/providers/establishment_provider.dart';
+import 'package:cat_tourism_hub/utils/snackbar_helper.dart';
 import 'package:cat_tourism_hub/values/strings.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -22,8 +23,6 @@ class _SignUpState extends State<SignUp> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
 
-  final String municipalityUrl =
-      'https://psgc.gitlab.io/api/provinces/052000000/municipalities/';
   List<Map<String, dynamic>> municipalities = [];
   List<Map<String, dynamic>> barangays = [];
 
@@ -31,6 +30,9 @@ class _SignUpState extends State<SignUp> {
   String selectedBarangay = '';
 
   String? bType;
+  bool showLogoError = false;
+  bool showBannerError = false;
+  bool _isLoading = false;
 
   TextEditingController name = TextEditingController();
   TextEditingController? about = TextEditingController();
@@ -41,6 +43,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController? pNum = TextEditingController();
   TextEditingController? socMed = TextEditingController();
   TextEditingController? website = TextEditingController();
+  TextEditingController? otherTypeController = TextEditingController();
 
   File? logo;
   Uint8List? logoWeb;
@@ -100,34 +103,51 @@ class _SignUpState extends State<SignUp> {
   Widget _buildTypeStep(BuildContext context) {
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
           child: Text(
             'Tell us about your business',
             textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'Inter', fontSize: 20.0),
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
         DropdownButtonFormField<String>(
           items: const [
             DropdownMenuItem(
                 value: AppStrings.accommodations,
-                child: Text(AppStrings.accommodations)),
+                child: Tooltip(
+                    message: 'Select this if you offer accommodation only',
+                    child: Text(AppStrings.accommodations))),
             DropdownMenuItem(
                 value: AppStrings.restaurants,
-                child: Text(AppStrings.restaurants)),
+                child: Tooltip(
+                    message:
+                        'Select this if you offer dining and catering services only',
+                    child: Text(AppStrings.restaurants))),
             DropdownMenuItem(
                 value: AppStrings.hotelAndResto,
-                child: Text(AppStrings.hotelAndResto)),
+                child: Tooltip(
+                    message:
+                        'Select this if you offer both accommodation and services.',
+                    child: Text(AppStrings.hotelAndResto))),
             DropdownMenuItem(
                 value: AppStrings.vehicleRentals,
-                child: Text(AppStrings.vehicleRentals)),
+                child: Tooltip(
+                    message: 'Select this if you offer vehicle rentals.',
+                    child: Text(AppStrings.vehicleRentals))),
             DropdownMenuItem(
                 value: AppStrings.delicacies,
-                child: Text(AppStrings.delicacies)),
+                child: Tooltip(
+                    message:
+                        'Select this if you offer happy island\'s homemade delicacies.',
+                    child: Text(AppStrings.delicacies))),
+            DropdownMenuItem(
+                value: AppStrings.others, child: Text(AppStrings.others)),
           ],
           onChanged: (value) {
-            bType = value;
+            setState(() {
+              bType = value;
+            });
           },
           validator: (value) {
             if (value == null) {
@@ -142,9 +162,36 @@ class _SignUpState extends State<SignUp> {
                 EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
           ),
         ),
+        if (bType == 'Others')
+          Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: TextFormField(
+              controller: otherTypeController,
+              decoration: const InputDecoration(
+                labelText: 'Please specify',
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
+              ),
+              validator: (value) {
+                if (bType == AppStrings.others &&
+                    (value == null || value.isEmpty)) {
+                  return 'Please specify your business type';
+                }
+                return null;
+              },
+            ),
+          ),
         const SizedBox(height: 20),
         ElevatedButton(
-          onPressed: () => nextStep(),
+          onPressed: () {
+            if (_formKey.currentState?.validate() ?? false) {
+              if (bType == AppStrings.others) {
+                bType = otherTypeController!.text;
+              }
+            }
+            nextStep();
+          },
           child: const Text('Next'),
         ),
       ],
@@ -152,118 +199,203 @@ class _SignUpState extends State<SignUp> {
   }
 
   Widget _buildNameStep(BuildContext context) {
-    return Column(
-      children: [
-        TextFormField(
-          controller: name,
-          decoration: const InputDecoration(
-            labelText: 'Business Name',
-            border: OutlineInputBorder(),
-          ),
-          validator: (value) => (value == null || value.isEmpty)
-              ? 'Please enter business name.'
-              : null,
-        ),
-        const SizedBox(height: 20),
-        TextFormField(
-          controller: about,
-          decoration: const InputDecoration(
-            labelText: 'About/Tagline',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 40),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
           children: [
-            ElevatedButton(
-              onPressed: () => previousStep(),
-              child: const Text('Back'),
+            TextFormField(
+              controller: name,
+              decoration: const InputDecoration(
+                labelText: 'Business Name',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) => (value == null || value.isEmpty)
+                  ? 'Please enter business name.'
+                  : null,
             ),
-            ElevatedButton(
-              onPressed: () => nextStep(),
-              child: const Text('Next'),
+            const SizedBox(height: 20),
+            TextFormField(
+              controller: about,
+              decoration: const InputDecoration(
+                labelText: 'About/Tagline',
+                border: OutlineInputBorder(),
+              ),
             ),
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () => previousStep(),
+                  child: const Text('Back'),
+                ),
+                ElevatedButton(
+                  onPressed: () => nextStep(),
+                  child: const Text('Next'),
+                ),
+              ],
+            )
           ],
-        )
-      ],
+        ),
+      ),
     );
   }
 
-  Future pickImage(String context) async {
+  // Future pickImage(String context) async {
+  //   final ImagePicker picker = ImagePicker();
+  //   XFile? image = await picker.pickImage(source: ImageSource.gallery);
+  //   if (kIsWeb) {
+  //     if (image != null) {
+  //       var selected = await image.readAsBytes();
+
+  //       if (context == 'logo') {
+  //         setState(() {
+  //           logoWeb = selected;
+  //           logoPath = image.path;
+  //         });
+  //       } else if (context == 'banner') {
+  //         setState(() {
+  //           bannerWeb = selected;
+  //           bannerPath = image.path;
+  //         });
+  //       } else if (context == 'bussPerm') {
+  //         setState(() {
+  //           bussPermWeb = selected;
+  //           bussPermPath = image.path;
+  //         });
+  //       } else if (context == 'sanitPerm') {
+  //         setState(() {
+  //           sanitPermWeb = selected;
+  //           sanitPermPath = image.path;
+  //         });
+  //       } else if (context == 'dotCert') {
+  //         setState(() {
+  //           dotCertWeb = selected;
+  //           dotCertPath = image.path;
+  //         });
+  //       }
+  //     }
+  //   } else {
+  //     if (image != null) {
+  //       var selected = File(image.path);
+  //       if (context == 'logo') {
+  //         setState(() {
+  //           logo = selected;
+  //         });
+  //       } else if (context == 'banner') {
+  //         setState(() {
+  //           banner = selected;
+  //         });
+  //       } else if (context == 'bussPerm') {
+  //         setState(() {
+  //           bussPerm = selected;
+  //           bussPermPath = image.path;
+  //         });
+  //       } else if (context == 'sanitPerm') {
+  //         setState(() {
+  //           sanitPerm = selected;
+  //           sanitPermPath = image.path;
+  //         });
+  //       } else if (context == 'dotCert') {
+  //         setState(() {
+  //           dotCert = selected;
+  //           dotCertPath = image.path;
+  //         });
+  //       }
+  //     }
+  //   }
+  // }
+
+  Future<void> pickImage(String context) async {
     final ImagePicker picker = ImagePicker();
     XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (kIsWeb) {
-      if (image != null) {
-        var selected = await image.readAsBytes();
 
-        if (context == 'logo') {
-          setState(() {
-            logoWeb = selected;
-            logoPath = image.path;
-          });
-        } else if (context == 'banner') {
-          setState(() {
-            bannerWeb = selected;
-            bannerPath = image.path;
-          });
-        } else if (context == 'bussPerm') {
-          setState(() {
-            bussPermWeb = selected;
-            bussPermPath = image.path;
-          });
-        } else if (context == 'sanitPerm') {
-          setState(() {
-            sanitPermWeb = selected;
-            sanitPermPath = image.path;
-          });
-        } else if (context == 'dotCert') {
-          setState(() {
-            dotCertWeb = selected;
-            dotCertPath = image.path;
-          });
-        }
-      }
+    if (image == null) return;
+
+    final imageBytes = kIsWeb ? await image.readAsBytes() : null;
+    final imageFile = !kIsWeb ? File(image.path) : null;
+
+    final contextMapWeb = {
+      'logo': () {
+        setState(() {
+          logoWeb = imageBytes;
+          logoPath = image.path;
+        });
+      },
+      'banner': () {
+        setState(() {
+          bannerWeb = imageBytes;
+          bannerPath = image.path;
+        });
+      },
+      'bussPerm': () {
+        setState(() {
+          bussPermWeb = imageBytes;
+          bussPermPath = image.path;
+        });
+      },
+      'sanitPerm': () {
+        setState(() {
+          sanitPermWeb = imageBytes;
+          sanitPermPath = image.path;
+        });
+      },
+      'dotCert': () {
+        setState(() {
+          dotCertWeb = imageBytes;
+          dotCertPath = image.path;
+        });
+      },
+    };
+
+    final contextMapMobile = {
+      'logo': () {
+        setState(() {
+          logo = imageFile;
+        });
+      },
+      'banner': () {
+        setState(() {
+          banner = imageFile;
+        });
+      },
+      'bussPerm': () {
+        setState(() {
+          bussPerm = imageFile;
+          bussPermPath = image.path;
+        });
+      },
+      'sanitPerm': () {
+        setState(() {
+          sanitPerm = imageFile;
+          sanitPermPath = image.path;
+        });
+      },
+      'dotCert': () {
+        setState(() {
+          dotCert = imageFile;
+          dotCertPath = image.path;
+        });
+      },
+    };
+
+    if (kIsWeb) {
+      contextMapWeb[context]?.call();
     } else {
-      if (image != null) {
-        var selected = File(image.path);
-        if (context == 'logo') {
-          setState(() {
-            logo = selected;
-          });
-        } else if (context == 'banner') {
-          setState(() {
-            banner = selected;
-          });
-        } else if (context == 'bussPerm') {
-          setState(() {
-            bussPerm = selected;
-            bussPermPath = image.path;
-          });
-        } else if (context == 'sanitPerm') {
-          setState(() {
-            sanitPerm = selected;
-            sanitPermPath = image.path;
-          });
-        } else if (context == 'dotCert') {
-          setState(() {
-            dotCert = selected;
-            dotCertPath = image.path;
-          });
-        }
-      }
+      contextMapMobile[context]?.call();
     }
   }
 
   Widget _buildLogoStep(BuildContext context) {
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
           child: Text(
             'Upload your business logo',
             textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'Inter', fontSize: 20.0),
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
         GestureDetector(
@@ -286,6 +418,14 @@ class _SignUpState extends State<SignUp> {
                       ),
           ),
         ),
+        if (showLogoError)
+          const Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Text(
+              'Please upload an image',
+              style: TextStyle(color: Colors.red, fontSize: 14),
+            ),
+          ),
         const SizedBox(height: 40),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -295,7 +435,16 @@ class _SignUpState extends State<SignUp> {
               child: const Text('Back'),
             ),
             ElevatedButton(
-              onPressed: () => nextStep(),
+              onPressed: () {
+                if ((kIsWeb && logoWeb == null) || (logoPath == null)) {
+                  setState(() {
+                    showLogoError = true;
+                  });
+                  return;
+                }
+
+                nextStep();
+              },
               child: const Text('Next'),
             ),
           ],
@@ -307,12 +456,12 @@ class _SignUpState extends State<SignUp> {
   Widget _buildBannerStep(BuildContext context) {
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
           child: Text(
             'Upload your business banner',
             textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'Inter', fontSize: 20.0),
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
         GestureDetector(
@@ -337,6 +486,14 @@ class _SignUpState extends State<SignUp> {
                       ),
           ),
         ),
+        if (showBannerError)
+          const Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Text(
+              'Please upload an image',
+              style: TextStyle(color: Colors.red, fontSize: 14),
+            ),
+          ),
         const SizedBox(height: 40),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -346,7 +503,15 @@ class _SignUpState extends State<SignUp> {
               child: const Text('Back'),
             ),
             ElevatedButton(
-              onPressed: () => nextStep(),
+              onPressed: () {
+                if ((kIsWeb && bannerWeb == null) || (bannerPath == null)) {
+                  setState(() {
+                    showBannerError = true;
+                  });
+                  return;
+                }
+                nextStep();
+              },
               child: const Text('Next'),
             ),
           ],
@@ -357,7 +522,7 @@ class _SignUpState extends State<SignUp> {
 
   Future<void> fetchMunicipalities() async {
     try {
-      final response = await http.get(Uri.parse(municipalityUrl));
+      final response = await http.get(Uri.parse(AppStrings.municipalitUrl));
       if (response.statusCode == 200) {
         setState(() {
           municipalities = List<Map<String, dynamic>>.from(
@@ -367,7 +532,7 @@ class _SignUpState extends State<SignUp> {
         });
       }
     } catch (e) {
-      print('Error occured: $e');
+      debugPrint('Error occured: $e');
     }
   }
 
@@ -385,102 +550,119 @@ class _SignUpState extends State<SignUp> {
         });
       }
     } catch (e) {
-      print('Error occured: $e');
+      debugPrint('Error occured: $e');
     }
   }
 
   Widget _buildLocationStep(BuildContext context) {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
-          child: Text(
-            'Where can guests find you?',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'Inter', fontSize: 20.0),
-          ),
-        ),
-        TextFormField(
-          controller: bldg,
-          decoration: const InputDecoration(
-            labelText: 'Building',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 20),
-        TextFormField(
-          controller: street,
-          decoration: const InputDecoration(
-            labelText: 'Street',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 20),
-        DropdownButtonFormField(
-          items: municipalities.map((location) {
-            return DropdownMenuItem(
-              value: location['code'].toString(),
-              child: Text(location['name'].toString()),
-            );
-          }).toList(),
-          hint: const Text('Municipality'),
-          onChanged: (value) {
-            setState(() {
-              selectedMunicipality = value.toString();
-              fetchBarangays(selectedMunicipality);
-            });
-          },
-          decoration: const InputDecoration(border: OutlineInputBorder()),
-          validator: (value) {
-            if (municipalities
-                    .where((location) => location['code'].toString() == value)
-                    .length !=
-                1) {
-              return 'Please select a municipality';
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 20),
-        // DropdownButtonFormField(
-        //   items: barangays.map((location) {
-        //     return DropdownMenuItem(
-        //       value: location['code'].toString(),
-        //       child: Text(location['name'].toString()),
-        //     );
-        //   }).toList(),
-        //   hint: const Text('Barangay'),
-        //   onChanged: (value) {
-        //     setState(() {
-        //       selectedBarangay = value.toString();
-        //     });
-        //   },
-        //   decoration: const InputDecoration(border: OutlineInputBorder()),
-        //   validator: (value) {
-        //     if (barangays
-        //             .where((location) => location['code'].toString() == value)
-        //             .length !=
-        //         1) {
-        //       return 'Please select a barangay';
-        //     }
-        //     return null;
-        //   },
-        // ),
-        const SizedBox(height: 40),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
           children: [
-            ElevatedButton(
-              onPressed: () => previousStep(),
-              child: const Text('Back'),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Text(
+                'Where can guests find you?',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
-            ElevatedButton(
-              onPressed: () => nextStep(),
-              child: const Text('Next'),
+            TextFormField(
+              controller: bldg,
+              decoration: const InputDecoration(
+                labelText: 'Building',
+                border: OutlineInputBorder(),
+              ),
             ),
+            const SizedBox(height: 20),
+            TextFormField(
+              controller: street,
+              decoration: const InputDecoration(
+                labelText: 'Street',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            DropdownButtonFormField(
+              style: Theme.of(context).textTheme.bodyMedium,
+              items: municipalities.map((location) {
+                return DropdownMenuItem(
+                  value: location['code'].toString(),
+                  child: Text(location['name'].toString()),
+                );
+              }).toList(),
+              hint: Text(
+                'Municipality',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              onChanged: (value) {
+                setState(() {
+                  selectedMunicipality = municipalities.firstWhere(
+                      (location) => location['code'] == value)['name'];
+                  fetchBarangays(value.toString());
+                });
+              },
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              validator: (value) {
+                if (municipalities
+                        .where(
+                            (location) => location['code'].toString() == value)
+                        .length !=
+                    1) {
+                  return 'Please select a municipality';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 20),
+            DropdownButtonFormField(
+              style: Theme.of(context).textTheme.bodyMedium,
+              items: barangays.map((location) {
+                return DropdownMenuItem(
+                  value: location['code'].toString(),
+                  child: Text(location['name'].toString()),
+                );
+              }).toList(),
+              hint: Text(
+                'Barangay',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              onChanged: (value) {
+                setState(() {
+                  selectedBarangay = barangays.firstWhere(
+                      (location) => location['code'] == value)['name'];
+                });
+              },
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              validator: (value) {
+                if (barangays
+                        .where(
+                            (location) => location['code'].toString() == value)
+                        .length !=
+                    1) {
+                  return 'Please select a barangay';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () => previousStep(),
+                  child: const Text('Back'),
+                ),
+                ElevatedButton(
+                  onPressed: () => nextStep(),
+                  child: const Text('Next'),
+                ),
+              ],
+            )
           ],
-        )
-      ],
+        ),
+      ),
     );
   }
 
@@ -488,13 +670,13 @@ class _SignUpState extends State<SignUp> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
           child: Center(
             child: Text(
               'Legal Documents',
               textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: 'Inter', fontSize: 20.0),
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ),
         ),
@@ -632,47 +814,66 @@ class _SignUpState extends State<SignUp> {
               child: const Text('Back'),
             ),
             ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  Establishment establishment = Establishment(
-                    name: name.text,
-                    about: about?.text,
-                    type: bType!,
-                    status: 'PENDING',
-                    location: {
-                      'bldg': bldg?.text,
-                      'street': street?.text,
-                      'municipality': selectedMunicipality,
-                      'barangay': selectedBarangay,
-                    },
-                    contact: {
-                      'name': cName?.text,
-                      'email': email?.text,
-                      'phone': pNum?.text,
-                      'socmed': socMed?.text,
-                      'website': website?.text,
-                    },
-                  );
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      if (_formKey.currentState!.validate()) {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        Establishment establishment = Establishment(
+                          name: name.text,
+                          about: about?.text,
+                          type: bType!,
+                          status: 'PENDING',
+                          location: {
+                            'bldg': bldg?.text,
+                            'street': street?.text,
+                            'municipality': selectedMunicipality,
+                            'barangay': selectedBarangay,
+                          },
+                          contact: {
+                            'name': cName?.text,
+                            'email': email?.text,
+                            'phone': pNum?.text,
+                            'socmed': socMed?.text,
+                            'website': website?.text,
+                          },
+                        );
 
-                  List<Photo> photos = [
-                    Photo(title: 'logo', image: logo, webImage: logoWeb),
-                    Photo(title: 'banner', image: banner, webImage: bannerWeb),
-                    Photo(
-                        title: 'bussPerm',
-                        image: bussPerm,
-                        webImage: bussPermWeb),
-                    Photo(
-                        title: 'sanitPerm',
-                        image: sanitPerm,
-                        webImage: sanitPermWeb),
-                    Photo(
-                        title: 'dotCert', image: dotCert, webImage: dotCertWeb),
-                  ];
+                        List<Photo> photos = [
+                          Photo(title: 'logo', image: logo, webImage: logoWeb),
+                          Photo(
+                              title: 'banner',
+                              image: banner,
+                              webImage: bannerWeb),
+                          Photo(
+                              title: 'bussPerm',
+                              image: bussPerm,
+                              webImage: bussPermWeb),
+                          Photo(
+                              title: 'sanitPerm',
+                              image: sanitPerm,
+                              webImage: sanitPermWeb),
+                          Photo(
+                              title: 'dotCert',
+                              image: dotCert,
+                              webImage: dotCertWeb),
+                        ];
 
-                  await submitForm(establishment, photos);
-                }
-              },
-              child: const Text('Submit'),
+                        String result = await submitForm(establishment, photos);
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        SnackbarHelper.showSnackBar(result);
+                      }
+                    },
+              child: _isLoading
+                  ? LoadingAnimationWidget.horizontalRotatingDots(
+                      color: Colors.blue,
+                      size: 30,
+                    )
+                  : const Text('Submit'),
             ),
           ],
         )
@@ -703,49 +904,45 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Row(mainAxisSize: MainAxisSize.max, children: [
-      if (MediaQuery.sizeOf(context).width > 600.0)
-        Align(
-          alignment: const AlignmentDirectional(0.0, 0.0),
+      body: Row(mainAxisSize: MainAxisSize.max, children: [
+        if (MediaQuery.sizeOf(context).width > 600.0)
+          Align(
+            alignment: const AlignmentDirectional(0.0, 0.0),
+            child: Padding(
+              padding:
+                  const EdgeInsetsDirectional.fromSTEB(10.0, 0.0, 5.0, 0.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: SvgPicture.asset(
+                  'assets/images/undraw_building.svg',
+                  width: MediaQuery.sizeOf(context).width * 0.4,
+                  height: MediaQuery.sizeOf(context).height * 0.5,
+                  fit: BoxFit.contain,
+                  alignment: const Alignment(0.0, -1.0),
+                ),
+              ),
+            ),
+          ),
+        Expanded(
           child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(10.0, 0.0, 5.0, 0.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: SvgPicture.asset(
-                'assets/images/undraw_building.svg',
-                width: MediaQuery.sizeOf(context).width * 0.4,
-                height: MediaQuery.sizeOf(context).height * 0.5,
-                fit: BoxFit.contain,
-                alignment: const Alignment(0.0, -1.0),
+            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Text('Be part of Catanduanes Tourism Hub',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineLarge),
+                  ),
+                  Expanded(child: _buildStepContent(context)),
+                ],
               ),
             ),
           ),
         ),
-      Expanded(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    'Be part of Catanduanes Tourism Hub',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 30.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Expanded(child: _buildStepContent(context)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ]));
+      ]),
+    );
   }
 }

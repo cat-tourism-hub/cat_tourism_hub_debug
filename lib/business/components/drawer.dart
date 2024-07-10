@@ -1,6 +1,5 @@
 import 'package:cat_tourism_hub/models/establishment.dart';
 import 'package:cat_tourism_hub/auth/auth_provider.dart';
-import 'package:cat_tourism_hub/values/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -16,35 +15,20 @@ class BusinessDrawer extends StatelessWidget {
       Establishment establishment, SidebarXController controller) {
     return [
       SidebarXItem(
-        icon: Icons.dashboard_rounded,
+        icon: Icons.dashboard_outlined,
         label: 'Dashboard',
         onTap: () => controller.selectIndex(0),
       ),
       SidebarXItem(
-        icon: Icons.admin_panel_settings,
+        icon: Icons.admin_panel_settings_outlined,
         label: 'Admin Panel',
         onTap: () => controller.selectIndex(1),
       ),
-      if (establishment.type == AppStrings.restaurants ||
-          establishment.type == AppStrings.hotelAndResto)
-        SidebarXItem(
-          icon: Icons.menu_book_rounded,
-          label: 'Menu',
-          onTap: () => controller.selectIndex(2),
-        ),
-      if (establishment.type == AppStrings.accommodations ||
-          establishment.type == AppStrings.hotelAndResto)
-        SidebarXItem(
-          icon: Icons.blur_linear,
-          label: 'Rooms',
-          onTap: () => controller.selectIndex(3),
-        ),
-      if (establishment.type == AppStrings.vehicleRentals)
-        SidebarXItem(
-          icon: Icons.car_rental,
-          label: 'Vehicles',
-          onTap: () => controller.selectIndex(4),
-        ),
+      SidebarXItem(
+        icon: Icons.category_outlined,
+        label: 'Products/Services',
+        onTap: () => controller.selectIndex(2),
+      ),
     ];
   }
 

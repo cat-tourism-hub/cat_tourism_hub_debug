@@ -17,12 +17,13 @@ class BusinessDataCard extends StatelessWidget {
         return GestureDetector(
           onTap: onTap,
           child: Card(
-            shape: ContinuousRectangleBorder(
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
             elevation: 5,
             child: SizedBox(
               width: cardWidth,
+              height: 150,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +34,7 @@ class BusinessDataCard extends StatelessWidget {
                           height: constraints.maxHeight * 0.45,
                           width: cardWidth,
                           child: Image.network(
-                            data.photos?.first,
+                            data.photos?.first ?? '',
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return const Center(
@@ -63,26 +64,31 @@ class BusinessDataCard extends StatelessWidget {
                             child: Text('No Image'),
                           ),
                         ),
+
+                  // Data below the Image
                   Padding(
                     padding: const EdgeInsets.all(6.0),
                     child: Column(
-                      mainAxisSize: MainAxisSize.max,
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          overflow: TextOverflow.ellipsis,
                           data.name,
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge!
+                              .copyWith(fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 12),
                         if (data.desc.isNotEmpty && constraints.maxHeight > 250)
                           Text(
-                            maxLines: constraints.maxHeight < 260 ? 1 : 2,
-                            overflow: TextOverflow.ellipsis,
                             data.desc,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: constraints.maxHeight < 260 ? 1 : 2,
                             style: const TextStyle(fontSize: 14),
                           ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 14),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -109,10 +115,11 @@ class BusinessDataCard extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 14),
                         Text(
-                            'Availability: ${data.availabilityStatus.toString()}',
-                            style: Theme.of(context).textTheme.labelMedium)
+                          'Availability: ${data.availabilityStatus.toString()}',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                       ],
                     ),
                   ),

@@ -61,7 +61,8 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                 ),
               ),
               border: const OutlineInputBorder(),
-              hintText: AppStrings.price,
+              label: const Text('${AppStrings.price}*'),
+              labelStyle: Theme.of(context).textTheme.labelMedium,
             ),
           ),
         ),
@@ -83,7 +84,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                 _onValueChanged();
               });
             },
-            items: <String>['per night', 'per day', 'Other']
+            items: <String>['per night', 'per day', 'per serving', 'custom']
                 .map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
@@ -96,7 +97,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           ),
         ),
         const SizedBox(width: 10),
-        if (_duration == 'Other')
+        if (_duration == 'custom')
           Expanded(
             child: TextFormField(
               controller: _customDurationController,

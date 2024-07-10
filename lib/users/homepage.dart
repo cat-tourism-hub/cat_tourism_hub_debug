@@ -1,14 +1,10 @@
-import 'package:cat_tourism_hub/users/accommodations.dart';
-import 'package:cat_tourism_hub/users/components/content_view.dart';
-import 'package:cat_tourism_hub/users/components/custom_tab.dart';
-import 'package:cat_tourism_hub/users/components/custom_tab_bar.dart';
+import 'package:cat_tourism_hub/models/partner.dart';
+import 'package:cat_tourism_hub/providers/partners_provider.dart';
 import 'package:cat_tourism_hub/users/components/drawer.dart';
-import 'package:cat_tourism_hub/users/delicacies.dart';
-import 'package:cat_tourism_hub/users/events.dart';
-import 'package:cat_tourism_hub/users/rentals.dart';
-import 'package:cat_tourism_hub/users/restaurants.dart';
 import 'package:cat_tourism_hub/values/strings.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,106 +13,228 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   TabController? controller;
   double screenHeight = 0;
   double screenWidth = 0;
-  List<ContentView> contentViews = [
-    ContentView(
-        tab: const CustomTab(title: AppStrings.accommodations),
-        content: const AccommodationPage()),
-    ContentView(
-        tab: const CustomTab(title: AppStrings.restaurants),
-        content: const RestaurantsPage()),
-    ContentView(
-        tab: const CustomTab(title: AppStrings.vehicleRentals),
-        content: const VehicleRentalsPage()),
-    ContentView(
-        tab: const CustomTab(title: AppStrings.delicacies),
-        content: const DelicaciesPage()),
-    ContentView(
-        tab: const CustomTab(title: AppStrings.events),
-        content: const EventsPage()),
-  ];
+  String searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    controller = TabController(length: contentViews.length + 1, vsync: this);
+    final partnerProvider =
+        Provider.of<PartnersProvider>(context, listen: false);
+    partnerProvider.fetchPartners();
+  }
+
+  /// The function `_groupPartnersByType` takes a list of Partner objects and groups them by their type
+  /// into a Map.
+  ///
+  /// Args:
+  ///   partners (List<Partner>): The function `_groupPartnersByType` takes a list of `Partner` objects as
+  /// input and groups them based on their type. It creates a map where the keys are the partner types and
+  /// the values are lists of partners belonging to that type.
+  ///
+  /// Returns:
+  ///   The function `_groupPartnersByType` returns a `Map` where the keys are `String` representing the
+  /// type of partners, and the values are `List<Partner>` containing the partners grouped by their type.
+  Map<String, List<Partner>> _groupPartnersByType(List<Partner> partners) {
+    Map<String, List<Partner>> groupedPartners = {};
+
+    for (var partner in partners) {
+      if (!groupedPartners.containsKey(partner.type)) {
+        groupedPartners[partner.type!] = [];
+      }
+      groupedPartners[partner.type]!.add(partner);
+    }
+    return groupedPartners;
+  }
+
+  List<Widget> _buildPartnerList(Map<String, List<Partner>> partnersMap) {
+    List<Widget> partnerList = [];
+    partnersMap.forEach((type, partners) {
+      if (searchQuery.isEmpty || partners.isNotEmpty) {
+        partnerList.add(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  type,
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+              ),
+              SizedBox(
+                height: 150,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: partners.length,
+                  itemBuilder: (context, index) {
+                    var partner = partners[index];
+                    return Card(
+                      margin: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: 150,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Text(partner.name!),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+    return partnerList;
+  }
+
+  Widget desktopView(List<Partner> partners) {
+    Map<String, List<Partner>> groupedPartners = _groupPartnersByType(partners);
+
+    Map<String, List<Partner>> filteredPartners = {};
+    groupedPartners.forEach((type, partners) {
+      filteredPartners[type] = partners
+          .where((Partner partner) =>
+              partner.name!.toLowerCase().contains(searchQuery.toLowerCase()))
+          .toList();
+    });
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppStrings.appName,
+            style: Theme.of(context).textTheme.headlineLarge!),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 40),
+            child: TextButton(
+              onPressed: () => context.push('/sign-in'),
+              child: Text(
+                '${AppStrings.login}/${AppStrings.register}',
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+            ),
+          ),
+        ],
+      ),
+      drawer: const CustomDrawer(),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/dot_catanduanes.jpg',
+                  width: screenWidth,
+                  height: screenHeight * 0.6,
+                  fit: BoxFit.fitHeight,
+                ),
+                Center(
+                  child: SizedBox(
+                      width: screenWidth < 1000
+                          ? screenWidth * 0.9
+                          : screenWidth * 0.5,
+                      child: Opacity(
+                        opacity: 0.9,
+                        child: SearchBar(
+                          hintText: 'Search the happy island.',
+                          leading: const Icon(Icons.search_outlined),
+                          onChanged: (value) {
+                            setState(() {
+                              searchQuery = value;
+                            });
+                          },
+                        ),
+                      )),
+                ),
+              ],
+            ),
+            SizedBox(
+              width: screenWidth * 0.7,
+              child: Column(
+                children: searchQuery.isEmpty
+                    ? _buildPartnerList(groupedPartners)
+                    : _buildPartnerList(filteredPartners),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget mobileView(List<Partner> partners) {
+    Map<String, List<Partner>> groupedPartners = _groupPartnersByType(partners);
+
+    Map<String, List<Partner>> filteredPartners = {};
+    groupedPartners.forEach((type, partners) {
+      filteredPartners[type] = partners
+          .where((Partner partner) =>
+              partner.name!.toLowerCase().contains(searchQuery.toLowerCase()))
+          .toList();
+    });
+
+    return Scaffold(
+        drawer: const CustomDrawer(),
+        appBar: AppBar(
+            title: Text(AppStrings.appName,
+                style: Theme.of(context).textTheme.headlineMedium)),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Center(
+              child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.all(5),
+                  width: screenWidth < 1000
+                      ? screenWidth * 0.9
+                      : screenWidth * 0.5,
+                  height: 50,
+                  child: SearchBar(
+                    hintText: 'Search the happy island.',
+                    leading: const Icon(Icons.search_outlined),
+                    onChanged: (value) {
+                      setState(() {
+                        searchQuery = value;
+                      });
+                    },
+                  )),
+            ),
+            SizedBox(
+              width: screenWidth * 0.9,
+              child: Column(
+                children: searchQuery.isEmpty
+                    ? _buildPartnerList(groupedPartners)
+                    : _buildPartnerList(filteredPartners),
+              ),
+            ),
+          ],
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
     screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
-      key: scaffoldKey,
-      endDrawer: CustomDrawer(controller: controller),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 1000) {
-            return mobileView();
-          } else {
-            return desktopView();
-          }
-        },
-      ),
-    );
-  }
-
-  Widget desktopView() {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        CustomTabBar(
-            page: 'Homepage',
-            mainAxisAlignment: MainAxisAlignment.end,
-            controller: controller!,
-            tabs: [
-              ...contentViews.map((e) => e.tab),
-              const CustomTab(title: AppStrings.login)
-            ]),
-        SizedBox(
-            height: screenHeight * 0.9,
-            child: TabBarView(controller: controller, children: [
-              ...contentViews.map((e) => e.content),
-              // Login Tab content is empty as we handle navigation separately
-              Container()
-            ])),
-      ],
-    );
-  }
-
-  Widget mobileView() {
-    return Padding(
-      padding: EdgeInsets.only(
-          left: screenWidth * 0.05, right: screenWidth * 0.05, top: 30),
-      child: SizedBox(
-        width: screenWidth,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            IconButton(
-                iconSize: screenWidth * 0.04,
-                onPressed: () => scaffoldKey.currentState!.openEndDrawer(),
-                icon: const Icon(Icons.menu_rounded)),
-            Expanded(
-              child: TabBarView(controller: controller!, children: [
-                const AccommodationPage(),
-                const RestaurantsPage(),
-                const VehicleRentalsPage(),
-                const DelicaciesPage(),
-                const EventsPage(),
-                Container(), // Login Tab content is empty as we handle navigation separately
-              ]),
-            ),
-          ],
-        ),
-      ),
-    );
+    return Scaffold(body: Consumer<PartnersProvider>(
+      builder: (BuildContext context, PartnersProvider value, Widget? child) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            if (screenWidth < 1000) {
+              return mobileView(value.partners);
+            }
+            return desktopView(value.partners);
+          },
+        );
+      },
+    ));
   }
 }

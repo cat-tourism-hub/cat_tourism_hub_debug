@@ -1,20 +1,21 @@
 import 'package:cat_tourism_hub/business/sections/subsections/partner_details.dart';
 import 'package:cat_tourism_hub/business/sections/subsections/policies.dart';
-import 'package:cat_tourism_hub/business/sections/subsections/services_amenities.dart';
+import 'package:cat_tourism_hub/business/sections/subsections/facilities_amenities.dart';
 import 'package:cat_tourism_hub/users/components/content_view.dart';
 import 'package:cat_tourism_hub/users/components/custom_tab.dart';
 import 'package:cat_tourism_hub/users/components/custom_tab_bar.dart';
 import 'package:cat_tourism_hub/values/strings.dart';
 import 'package:flutter/material.dart';
 
-class Setup extends StatefulWidget {
-  const Setup({super.key});
+class AdminPanel extends StatefulWidget {
+  const AdminPanel({super.key});
 
   @override
-  State<Setup> createState() => _SetupState();
+  State<AdminPanel> createState() => _AdminPanelState();
 }
 
-class _SetupState extends State<Setup> with SingleTickerProviderStateMixin {
+class _AdminPanelState extends State<AdminPanel>
+    with SingleTickerProviderStateMixin {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   TabController? controller;
 
@@ -23,7 +24,7 @@ class _SetupState extends State<Setup> with SingleTickerProviderStateMixin {
         tab: const CustomTab(title: AppStrings.partnerDetails),
         content: const PartnerDetails()),
     ContentView(
-        tab: const CustomTab(title: AppStrings.servicesAndAmenities),
+        tab: const CustomTab(title: AppStrings.facilitiesAndAmenities),
         content: const ServicesAndAmenities()),
     ContentView(
         tab: const CustomTab(title: AppStrings.policies),
