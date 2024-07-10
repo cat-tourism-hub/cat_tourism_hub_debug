@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
             child: TextButton(
               onPressed: () => context.push('/sign-in'),
               child: Text(
-                '${AppStrings.login}/${AppStrings.register}',
+                AppStrings.loginRegister,
                 style: Theme.of(context).textTheme.labelMedium,
               ),
             ),

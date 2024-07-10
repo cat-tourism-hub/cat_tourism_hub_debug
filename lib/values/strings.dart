@@ -6,6 +6,11 @@ class AppStrings {
   static const String municipalitUrl =
       'https://psgc.gitlab.io/api/provinces/052000000/municipalities/';
   static const String homepage = 'Homepage';
+  static const String home = 'Home';
+  static const String termsOfUse = 'Terms of Use';
+  static const String privacyPolicy = 'Privacy Policy';
+  static const String loginRegister = 'Login/Register';
+
   static const String appName = 'Catanduanes Tourism Hub';
   static const String accommodationsLong = 'Accommodations to Stay';
   static const String restaurantsLong = 'Restaurants to Dine';
@@ -67,8 +72,8 @@ class AppStrings {
   static const String included =
       'Included in the price (separate by comma) (Optional)';
   static const String noProducts = 'No products/services available.';
-  static const String addOtherServices = 'Add additional info/services';
-  static const String additionalServices = 'Add additional info/services';
+  static const String addOtherServices = 'Add services/add-ons';
+  static const String addOnsServices = 'Add-ons/services';
 
   static const String businessAccount = 'Business Account';
   static const String createYourAccount = 'Create your account';

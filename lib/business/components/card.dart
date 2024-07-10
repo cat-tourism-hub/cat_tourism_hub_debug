@@ -23,7 +23,6 @@ class BusinessDataCard extends StatelessWidget {
             elevation: 5,
             child: SizedBox(
               width: cardWidth,
-              height: 150,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +84,11 @@ class BusinessDataCard extends StatelessWidget {
                           Text(
                             data.desc,
                             overflow: TextOverflow.ellipsis,
-                            maxLines: constraints.maxHeight < 260 ? 1 : 2,
+                            maxLines: constraints.maxHeight < 344
+                                ? 1
+                                : constraints.maxWidth < 600
+                                    ? 3
+                                    : 2,
                             style: const TextStyle(fontSize: 14),
                           ),
                         const SizedBox(height: 14),

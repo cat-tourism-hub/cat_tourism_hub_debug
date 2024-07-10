@@ -10,46 +10,60 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Colors.white,
       child: ListView(
         shrinkWrap: true,
         children: <Widget>[
+          DrawerHeader(
+            child: Image.asset(
+              'assets/images/dot_catanduanes.jpg',
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const Center(child: Text('Failed to load image'));
+              },
+              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                if (wasSynchronouslyLoaded) {
+                  return child;
+                }
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  child: frame == null
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.blue,
+                          ),
+                        )
+                      : child,
+                );
+              },
+            ),
+          ),
           ListTile(
-            title: const Text(AppStrings.accommodations),
+            leading: const Icon(Icons.home_outlined),
+            title: const Text(AppStrings.home),
             onTap: () {
-              controller!.animateTo(0);
+              context.go('/');
               Navigator.of(context).pop();
             },
           ),
           ListTile(
-            title: const Text(AppStrings.restaurants),
+            leading: const Icon(Icons.policy_outlined),
+            title: const Text(AppStrings.termsOfUse),
             onTap: () {
-              controller!.animateTo(1);
               Navigator.of(context).pop();
             },
           ),
           ListTile(
-            title: const Text(AppStrings.vehicleRentals),
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: const Text(AppStrings.privacyPolicy),
             onTap: () {
-              controller!.animateTo(2);
               Navigator.of(context).pop();
             },
           ),
           ListTile(
-            title: const Text(AppStrings.delicacies),
-            onTap: () {
-              controller!.animateTo(3);
-              Navigator.of(context).pop();
-            },
-          ),
-          ListTile(
-            title: const Text(AppStrings.events),
-            onTap: () {
-              controller!.animateTo(4);
-              Navigator.of(context).pop();
-            },
-          ),
-          ListTile(
-            title: const Text(AppStrings.login),
+            leading: const Icon(Icons.login_outlined),
+            title: const Text(AppStrings.loginRegister),
             onTap: () {
               context.push('/sign-in');
             },

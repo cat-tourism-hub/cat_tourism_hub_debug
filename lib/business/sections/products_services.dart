@@ -19,6 +19,7 @@ class _ProductsServicesState extends State<ProductsServices> {
   bool showAddProduct = false;
   late String token;
   late String uid;
+  String searchQuery = '';
 
   void toggleAddProduct() {
     setState(() {
@@ -50,39 +51,43 @@ class _ProductsServicesState extends State<ProductsServices> {
     return groupedProducts;
   }
 
-  List<Widget> _buildProductsList(List<Product> products, int crossAxisCount) {
-    Map<String, List<Product>> groupedProducts =
-        _groupProductsByCategory(products);
+  List<Widget> _buildProductsList(
+      Map<String, List<Product>> products, int crossAxisCount) {
     List<Widget> productList = [];
 
-    groupedProducts.forEach((category, productListByCategory) {
-      if (productListByCategory.isNotEmpty) {
+    products.forEach((category, productListByCategory) {
+      if (searchQuery.isEmpty || productListByCategory.isNotEmpty) {
         productList.add(
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(10),
                 child: Text(
                   category,
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
               ),
-              GridView.builder(
-                shrinkWrap: true,
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                itemCount: productListByCategory.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 4 / 3.5),
-                itemBuilder: (BuildContext context, int index) {
-                  final product = productListByCategory[index];
-                  return BusinessDataCard(data: product);
-                },
-              ),
+              LayoutBuilder(builder: (context, constraints) {
+                return GridView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  itemCount: productListByCategory.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: constraints.maxWidth < 580 &&
+                              constraints.maxWidth > 420
+                          ? 4 / 3
+                          : 4 / 4),
+                  itemBuilder: (BuildContext context, int index) {
+                    final product = productListByCategory[index];
+                    return BusinessDataCard(data: product);
+                  },
+                );
+              }),
             ],
           ),
         );
@@ -94,35 +99,81 @@ class _ProductsServicesState extends State<ProductsServices> {
 
   @override
   Widget build(BuildContext context) {
-    double gridItemWidth = MediaQuery.of(context).size.width < 1000 ? 300 : 400;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double gridItemWidth = screenWidth < 1000 ? 300 : 400;
     int crossAxisCount =
         (MediaQuery.of(context).size.width / gridItemWidth).floor();
+    Map<String, List<Product>> filteredProducts = {};
 
     return Consumer<ProductProvider>(
       builder: (context, value, child) {
+        Map<String, List<Product>> groupedProducts =
+            _groupProductsByCategory(value.products);
+
+        groupedProducts.forEach((type, productsServices) {
+          filteredProducts[type] = productsServices
+              .where((Product product) => product.name
+                  .toLowerCase()
+                  .contains(searchQuery.toLowerCase()))
+              .toList();
+        });
+
         return showAddProduct
             ? AddProduct(
                 toggleAddRoom: toggleAddProduct,
               )
             : Stack(
                 children: [
-                  Column(
-                    children: [
-                      if (value.isFetching && value.products.isEmpty)
-                        Center(
-                            child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(AppStrings.fetchingData),
-                            LoadingAnimationWidget.waveDots(
-                              color: Colors.black,
-                              size: 50,
-                            ),
-                          ],
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.only(top: 50),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (value.isFetching && value.products.isEmpty)
+                          SizedBox(
+                              width: screenWidth,
+                              height: MediaQuery.of(context).size.height,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text(AppStrings.fetchingData),
+                                  LoadingAnimationWidget.waveDots(
+                                    color: Colors.black,
+                                    size: 50,
+                                  ),
+                                ],
+                              )),
+                        SizedBox(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: searchQuery.isEmpty
+                                ? _buildProductsList(
+                                    groupedProducts, crossAxisCount)
+                                : _buildProductsList(
+                                    filteredProducts, crossAxisCount),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                        width: screenWidth < 1000
+                            ? screenWidth * 0.9
+                            : screenWidth * 0.5,
+                        height: 40,
+                        child: SearchBar(
+                          hintText: 'Search',
+                          leading: const Icon(Icons.search_outlined),
+                          onChanged: (value) {
+                            setState(() {
+                              searchQuery = value;
+                            });
+                          },
                         )),
-                      ..._buildProductsList(value.products, crossAxisCount),
-                    ],
                   ),
                   Align(
                     alignment: Alignment.bottomRight,

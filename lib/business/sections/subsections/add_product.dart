@@ -1,5 +1,4 @@
 import 'package:cat_tourism_hub/auth/auth_provider.dart';
-import 'package:cat_tourism_hub/business/components/dynamic_fields/dynamic_field.dart';
 import 'package:cat_tourism_hub/business/components/price_field.dart';
 import 'package:cat_tourism_hub/models/photo.dart';
 import 'package:cat_tourism_hub/models/product.dart';
@@ -30,11 +29,9 @@ class _AddProductState extends State<AddProduct> {
   final TextEditingController _desController = TextEditingController();
   final Map<String, TextEditingController> _controllers = {};
   List<Photo> _imageFiles = [];
-  final List<DynamicField> _additionalInfo = [];
   String output = '';
-  String? deletedChip, deletedChipIndex;
   List<String> included = [];
-  List<Map<String, String>> otherServices = [];
+  final List<Map<String, String>> _otherServices = [];
   String amount = '';
   String duration = '';
   bool _isLoading = false;
@@ -71,7 +68,7 @@ class _AddProductState extends State<AddProduct> {
   }
 
   // Function to serialize the data entered to be sent on API
-  Future _submitRoomData() async {
+  Future _submitProductData() async {
     setState(() {
       _isLoading = true;
     });
@@ -90,7 +87,7 @@ class _AddProductState extends State<AddProduct> {
         photos: _imageFiles,
         included: included,
         otherServices: {
-          for (var field in otherServices)
+          for (var field in _otherServices)
             _controllers['${field['key']}_name']?.text ?? '':
                 _controllers['${field['key']}_value']?.text ?? ''
         },
@@ -109,23 +106,11 @@ class _AddProductState extends State<AddProduct> {
   }
 
   // Widget builder for other services
-  List<Widget> _buildOtherServices() {
-    return otherServices.map(
+  List<Widget> _buildAdditionalInfo() {
+    return _otherServices.map(
       (field) {
-        // return IconField(
-        //   selectedIcon: selectedIcon,
-        //   labelText: labelText,
-        //   onIconSelected: onIconSelected,
-        //   textController: textController,
-        //   onIconPicker: () async {
-        //     IconData? icon = await pickIcon(context);
-        //     setState(() {
-        //       subField.selectedIcon = icon;
-        //     });
-        //   },
-        // );
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5.0),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -134,7 +119,7 @@ class _AddProductState extends State<AddProduct> {
                   controller: _controllers['${field['key']}_name'] =
                       TextEditingController(),
                   decoration: const InputDecoration(
-                      labelText: 'Name', border: OutlineInputBorder()),
+                      labelText: AppStrings.name, border: OutlineInputBorder()),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a custom field name';
@@ -149,10 +134,11 @@ class _AddProductState extends State<AddProduct> {
                   controller: _controllers['${field['key']}_value'] =
                       TextEditingController(),
                   decoration: const InputDecoration(
-                      labelText: 'Value', border: OutlineInputBorder()),
+                      labelText: AppStrings.price,
+                      border: OutlineInputBorder()),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a custom field value';
+                      return 'Please enter a value';
                     }
                     return null;
                   },
@@ -326,17 +312,17 @@ class _AddProductState extends State<AddProduct> {
               _buildIncludedInThePrice(),
               const SizedBox(height: 20),
 
-              if (otherServices.isNotEmpty)
+              if (_otherServices.isNotEmpty)
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text(
-                    AppStrings.additionalServices,
+                    AppStrings.addOnsServices,
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ),
 
               //list builder of [other services]
-              ..._buildOtherServices(),
+              ..._buildAdditionalInfo(),
               const SizedBox(height: 20),
 
               //Button to [add other services]
@@ -348,11 +334,14 @@ class _AddProductState extends State<AddProduct> {
                   ),
                   onPressed: () {
                     setState(() {
-                      otherServices.add({'key': UniqueKey().toString()});
+                      _otherServices.add({'key': UniqueKey().toString()});
                     });
                   },
                   child: Text(AppStrings.addOtherServices,
-                      style: Theme.of(context).textTheme.bodyMedium),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: Colors.white)),
                 ),
               ),
               const SizedBox(height: 20),
@@ -366,11 +355,14 @@ class _AddProductState extends State<AddProduct> {
                         ),
                         onPressed: () {
                           if (formKey.currentState?.validate() ?? false) {
-                            _submitRoomData();
+                            _submitProductData();
                           }
                         },
                         child: Text(AppStrings.save,
-                            style: Theme.of(context).textTheme.bodyMedium),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: Colors.white)),
                       ),
                     ),
             ],

@@ -38,9 +38,9 @@ class IconField extends StatelessWidget {
           child: TextFormField(
             controller: textController,
             decoration: InputDecoration(
-              labelText: labelText,
-              labelStyle: Theme.of(context).textTheme.bodyLarge,
-            ),
+                labelText: labelText,
+                labelStyle: Theme.of(context).textTheme.bodyLarge,
+                border: const OutlineInputBorder()),
             style: labelText == AppStrings.headingText
                 ? Theme.of(context)
                     .textTheme
