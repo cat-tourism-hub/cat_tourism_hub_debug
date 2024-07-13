@@ -105,7 +105,7 @@ class _AddProductState extends State<AddProduct> {
     }
   }
 
-  // Widget builder for other services
+  // Widget builder for [addons/services]
   List<Widget> _buildAdditionalInfo() {
     return _otherServices.map(
       (field) {
@@ -151,7 +151,7 @@ class _AddProductState extends State<AddProduct> {
     ).toList();
   }
 
-  // Widget builder for included in the price
+  // Widget builder for [included in the price]
   Widget _buildIncludedInThePrice() {
     return SimpleChipsInput(
       separatorCharacter: ',',

@@ -97,7 +97,7 @@ class MyApp extends StatelessWidget {
           cardTheme: const CardTheme(
               color: Color.fromARGB(255, 247, 247, 247),
               shadowColor: Color.fromARGB(255, 41, 102, 233),
-              elevation: 5),
+              elevation: 3),
           textTheme: const TextTheme(
               headlineLarge: TextStyle(
                   fontFamily: 'Montserrat',

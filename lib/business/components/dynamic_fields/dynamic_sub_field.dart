@@ -6,6 +6,6 @@ class SubField {
 
   SubField({
     required this.textController,
-    required this.selectedIcon,
+    this.selectedIcon,
   });
 }

@@ -18,26 +18,7 @@ class _DashboardContentState extends State<DashboardContent> {
   @override
   Widget build(BuildContext context) {
     return Consumer<EstablishmentProvider>(
-      builder: (context, value, child) => const Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Flexible(child: BusinessDataCard(data: 'Card 1')),
-              // SizedBox(width: 8), // Optional spacing between cards
-              // Flexible(child: BusinessDataCard(data: 'Card 2')),
-              // SizedBox(width: 8), // Optional spacing between cards
-              // Flexible(child: BusinessDataCard(data: 'Card 3')),
-              // SizedBox(width: 8), // Optional spacing between cards
-              // Flexible(child: BusinessDataCard(data: 'Card 4')),
-            ],
-          )
-        ],
-      ),
-    );
+        builder: (context, value, child) =>
+            Container(color: Colors.blue, child: const Text('Dashboard')));
   }
 }

@@ -1,10 +1,10 @@
 class Establishment {
-  final String? name;
-  final String? about;
-  final String? type;
+  String? name;
+  String? about;
+  String? type;
   final String? logo;
   final String? banner;
-  final String? status;
+  String? status;
   final String? userUid;
   final Map? location;
   final Map? contact;

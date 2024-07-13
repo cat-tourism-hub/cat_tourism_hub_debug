@@ -1,4 +1,5 @@
 import 'package:cat_tourism_hub/business/components/drawer.dart';
+import 'package:cat_tourism_hub/business/sections/bookings.dart';
 import 'package:cat_tourism_hub/business/sections/dashboard_content.dart';
 import 'package:cat_tourism_hub/business/sections/products_services.dart';
 import 'package:cat_tourism_hub/business/sections/admin_panel.dart';
@@ -81,6 +82,8 @@ class _IndexState extends State<Index> {
                         return const AdminPanel();
                       case 2:
                         return const ProductsServices();
+                      case 3:
+                        return const Bookings();
                       default:
                         return const Center(
                           child: Text(

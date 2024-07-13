@@ -11,7 +11,7 @@ class CustomTextFormField extends StatefulWidget {
 }
 
 class _CustomTextFormFieldState extends State<CustomTextFormField> {
-  String _duration = 'per night';
+  String _duration = 'none';
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _customDurationController =
       TextEditingController();
@@ -35,7 +35,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   void _onValueChanged() {
     String amount = _amountController.text;
     String duration =
-        _duration == 'Other' ? _customDurationController.text : _duration;
+        _duration == 'custom' ? _customDurationController.text : _duration;
     widget.onChanged(amount, duration);
   }
 
@@ -84,11 +84,19 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                 _onValueChanged();
               });
             },
-            items: <String>['per night', 'per day', 'per serving', 'custom']
-                .map<DropdownMenuItem<String>>((String value) {
+            items: <String>[
+              'none',
+              'per night',
+              'per day',
+              'per serving',
+              'custom'
+            ].map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value),
+                child: Text(
+                  value,
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
               );
             }).toList(),
             decoration: const InputDecoration(

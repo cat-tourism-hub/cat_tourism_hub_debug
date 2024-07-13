@@ -29,6 +29,11 @@ class BusinessDrawer extends StatelessWidget {
         label: 'Products/Services',
         onTap: () => controller.selectIndex(2),
       ),
+      SidebarXItem(
+        icon: Icons.confirmation_num_outlined,
+        label: 'Bookings',
+        onTap: () => controller.selectIndex(2),
+      ),
     ];
   }
 

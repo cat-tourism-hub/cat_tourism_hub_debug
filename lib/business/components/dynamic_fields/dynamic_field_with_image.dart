@@ -6,7 +6,7 @@ class DynamicFieldWithImage extends DynamicField {
 
   DynamicFieldWithImage(
       {required super.textController,
-      required super.selectedIcon,
+      super.selectedIcon,
       required super.subFields,
       required this.imageSubFields});
 }

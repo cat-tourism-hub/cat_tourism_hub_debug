@@ -55,7 +55,7 @@ class ProductProvider with ChangeNotifier {
         products = data.map<Product>((item) => Product.fromJson(item)).toList();
         notifyListeners();
       } else {
-        throw Exception('Failed to load hotels');
+        throw Exception('Failed to load products');
       }
     } catch (e) {
       print(e);
@@ -66,7 +66,7 @@ class ProductProvider with ChangeNotifier {
   }
 
   Future uploadNewProduct(String token, String uid, Establishment establishment,
-      Product room) async {
+      Product product) async {
     var uri = Uri.parse('${AppStrings.baseApiUrl}/business/$uid/services/add');
     try {
       var headers = {
@@ -74,19 +74,19 @@ class ProductProvider with ChangeNotifier {
         'Authorization': token,
       };
       var formData = {
-        ...room.toJson(),
+        ...product.toJson(),
       };
       final response =
           await http.post(uri, headers: headers, body: jsonEncode(formData));
 
       if (response.statusCode == 201) {
         products.add(
-            room); // Add to the hotel room list without fetching from db again
+            product); // Add to the hotel room list without fetching from db again
 
         notifyListeners();
-        return 'Room added successfully';
+        return 'Product/Service added successfully';
       } else {
-        return 'Failed to add room: ${response.body}';
+        return 'Failed to add product/service: ${response.body}';
       }
     } catch (e) {
       print(e);

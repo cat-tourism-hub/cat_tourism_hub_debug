@@ -68,37 +68,144 @@ class _ServicesAndAmenitiesState extends State<ServicesAndAmenities> {
     }
   }
 
-  Future _saveData(String uid, dynamic value2) async {
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState?.save();
-      List<Map<String, dynamic>> dynamicFieldsData = [];
+  Future<void> _saveData(
+    String uid,
+    dynamic value2,
+    String token,
+  ) async {
+    try {
+      if (_formKey.currentState?.validate() ?? false) {
+        _formKey.currentState?.save();
 
-      for (var field in _dynamicFields) {
-        Map<String, dynamic> fieldData = {
-          'text': field.textController.text,
-          'icon': serializeIcon(field.selectedIcon ?? Icons.check),
-          'subFields': [],
-          'imageSubFields': []
-        };
+        List<Map<String, dynamic>> dynamicFieldsData = [];
 
-        for (var subField in field.subFields) {
-          fieldData['subFields'].add({
-            'text': subField.textController.text,
-            'icon': serializeIcon(subField.selectedIcon ?? Icons.check)
+        for (var field in _dynamicFields) {
+          final text = field.textController.text;
+          final icon = serializeIcon(field.selectedIcon ?? Icons.check,
+              iconPack: IconPack.allMaterial);
+
+          final subFields = field.subFields.map((subField) {
+            final subFieldIconData = serializeIcon(
+                subField.selectedIcon ?? Icons.check,
+                iconPack: IconPack.allMaterial);
+            return {
+              'text': subField.textController.text,
+              'icon': subFieldIconData,
+            };
+          }).toList();
+
+          final imageSubFields = field.imageSubFields
+              .where((imageSubField) => imageSubField.image != null)
+              .map((imageSubField) => Photo(
+                  path: imageSubField.image!.path,
+                  title: imageSubField.image?.title,
+                  webImage: imageSubField.image?.webImage))
+              .toList();
+
+          dynamicFieldsData.add({
+            'heading': text,
+            'icon': icon,
+            'subFields': subFields,
+            'imageSubFields': imageSubFields,
           });
         }
 
-        for (var imageSubField in field.imageSubFields) {
-          if (imageSubField.image != null) {
-            fieldData['imageSubFields'].add(imageSubField.image!.path);
-          }
-        }
-
-        dynamicFieldsData.add(fieldData);
+        await value2.saveServiceAndAmenities(dynamicFieldsData, uid, token);
       }
-
-      await value2.saveServiceAndAmenities(dynamicFieldsData, uid);
+    } catch (e) {
+      debugPrint('ERRROR: ${e.toString()}');
     }
+  }
+
+  List<Widget> _buildFields() {
+    return _dynamicFields.map((field) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IconField(
+            labelText: AppStrings.headingText,
+            selectedIcon: field.selectedIcon,
+            textController: field.textController,
+            onIconPicker: () async {
+              IconData icon = await pickIcon(context);
+              setState(() {
+                field.selectedIcon = icon;
+              });
+            },
+          ),
+          const SizedBox(height: 10),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // Number of columns
+              crossAxisSpacing: 2, // Space between columns
+              mainAxisSpacing: 10, // Space between rows
+              childAspectRatio: (MediaQuery.of(context).size.width / 2 - 30) /
+                  50, // Adjust the height as needed
+            ),
+            itemCount: field.subFields.length,
+            itemBuilder: (context, index) {
+              final subField = field.subFields[index];
+              return Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: IconField(
+                  labelText: AppStrings.subText,
+                  textController: subField.textController,
+                  selectedIcon: subField.selectedIcon,
+                  onIconPicker: () async {
+                    IconData icon = await pickIcon(context);
+                    setState(() {
+                      subField.selectedIcon = icon;
+                    });
+                  },
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                ...field.imageSubFields.map((imageSubField) {
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 20, top: 10),
+                    child: ImageSubFieldWidget(
+                      imageSubField: imageSubField,
+                      onTap: () => _pickSingleImage(imageSubField),
+                    ),
+                  );
+                })
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Flexible(
+                child: ElevatedButton(
+                  onPressed: () => _addNewSubField(field),
+                  child: const Text('Add Sub Field'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: ElevatedButton(
+                  onPressed: () => _addImageSubField(field),
+                  child: const Text('Add Image'),
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Divider(),
+        ],
+      );
+    }).toList();
   }
 
   @override
@@ -108,94 +215,25 @@ class _ServicesAndAmenitiesState extends State<ServicesAndAmenities> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              ..._dynamicFields.map((field) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    IconField(
-                      labelText: AppStrings.headingText,
-                      selectedIcon: field.selectedIcon,
-                      textController: field.textController,
-                      onIconPicker: () async {
-                        IconData icon = await pickIcon(context);
-                        setState(() {
-                          field.selectedIcon = icon;
-                        });
-                      },
-                    ),
-                    ...field.subFields.map((subField) {
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 20, top: 10),
-                        child: IconField(
-                          labelText: AppStrings.subText,
-                          textController: subField.textController,
-                          selectedIcon: subField.selectedIcon,
-                          onIconPicker: () async {
-                            IconData icon = await pickIcon(context);
-                            setState(() {
-                              subField.selectedIcon = icon;
-                            });
-                          },
-                        ),
-                      );
-                    }),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          ...field.imageSubFields.map((imageSubField) {
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 20, top: 10),
-                              child: ImageSubFieldWidget(
-                                imageSubField: imageSubField,
-                                onTap: () => _pickSingleImage(imageSubField),
-                              ),
-                            );
-                          })
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Flexible(
-                          child: ElevatedButton(
-                            onPressed: () => _addNewSubField(field),
-                            child: const Text('Add Sub Field'),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Flexible(
-                          child: ElevatedButton(
-                            onPressed: () => _addImageSubField(field),
-                            child: const Text('Add Image'),
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    const Divider(),
-                  ],
-                );
-              }),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _addNewField,
-                child: const Text('Add Field'),
-              ),
-              const SizedBox(height: 20),
-              if (_dynamicFields.isNotEmpty)
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                ..._buildFields(),
+                const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () => _saveData(value.user!.uid, value2),
-                  child: const Text(AppStrings.save),
+                  onPressed: _addNewField,
+                  child: const Text('Add Field'),
                 ),
-            ],
+                const SizedBox(height: 20),
+                if (_dynamicFields.isNotEmpty)
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _saveData(value.user!.uid, value2, value.token!);
+                    },
+                    child: const Text(AppStrings.save),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -220,7 +258,7 @@ class ImageSubFieldWidget extends StatelessWidget {
       child: Container(
         height: 150,
         width: 200,
-        color: Colors.grey[300],
+        color: imageSubField.image == null ? Colors.grey[300] : null,
         child: imageSubField.image == null
             ? const Icon(Icons.add_a_photo, size: 50, color: Colors.grey)
             : (kIsWeb

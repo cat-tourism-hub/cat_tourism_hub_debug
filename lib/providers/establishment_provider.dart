@@ -28,68 +28,42 @@ class EstablishmentProvider with ChangeNotifier {
     }
   }
 
-  Future saveServiceAndAmenities(
-      List<Map<String, dynamic>> dynamicFields, String uid) async {
-    debugPrint(dynamicFields.toString());
+  Future saveServiceAndAmenities(List<Map<String, dynamic>> dynamicFields,
+      String uid, String token) async {
+    var url =
+        Uri.parse('${AppStrings.baseApiUrl}/business/update_amenities/$uid');
+    http.MultipartRequest request;
 
-    //   var uri = Uri.parse('${AppStrings.baseApiUrl}/business/$uid/facilites');
-    // http.MultipartRequest request;
+    // Determine platform
+    if (kIsWeb) {
+      // For web, upload files directly
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
 
-    // // Determine platform
-    // if (kIsWeb) {
-    //   // For web, upload files directly
-    //   var headers = {'Content-Type': 'application/json'};
-    //   var formData = {
-    //     ...establishment.toJson(),
-    //   };
+      var response = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(dynamicFields),
+      );
 
-    //   // Convert photo files to base64 strings
-    //   for (var photo in files) {
-    //     if (photo.webImage != null) {
-    //       // Convert Uint8List to base64 string
-    //       String base64Image = base64Encode(photo.webImage!);
-    //       formData[photo.title!] = base64Image;
-    //     }
-    //   }
+      if (response.statusCode == 201) {
+        return 'Form submitted successfully';
+      } else {
+        return 'Failed to submit form: ${response.body}';
+      }
+    } else {
+      // For mobile, use multipart request
+      request = http.MultipartRequest('POST', url);
 
-    //   var response = await http.post(
-    //     uri,
-    //     headers: headers,
-    //     body: jsonEncode(formData),
-    //   );
-
-    //   if (response.statusCode == 201) {
-    //     return 'Form submitted successfully';
-    //   } else {
-    //     return 'Failed to submit form: ${response.body}';
-    //   }
-    // } else {
-    //   // For mobile, use multipart request
-    //   request = http.MultipartRequest('POST', uri);
-
-    //   // Add form fields from Establishment object
-    //   establishment.toJson().forEach((key, value) {
-    //     request.fields[key] = value.toString();
-    //   });
-
-    //   // Add photo files
-    //   for (var photo in files) {
-    //     if (photo.image != null) {
-    //       request.files.add(http.MultipartFile.fromBytes(
-    //         photo.title!,
-    //         photo.image!.readAsBytesSync(),
-    //         filename: photo.title,
-    //       ));
-    //     }
-    //   }
-
-    //   var response = await request.send();
-    //   if (response.statusCode == 201) {
-    //     return 'Form submitted successfully';
-    //   } else {
-    //     return 'Failed to submit form: ${response.statusCode}';
-    //   }
-    // }
+      var response = await request.send();
+      if (response.statusCode == 201) {
+        return 'Form submitted successfully';
+      } else {
+        return 'Failed to submit form: ${response.statusCode}';
+      }
+    }
   }
 }
 

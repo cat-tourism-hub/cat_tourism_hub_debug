@@ -8,7 +8,7 @@ class DynamicField {
 
   DynamicField({
     required this.textController,
-    required this.selectedIcon,
+    this.selectedIcon,
     required this.subFields,
   });
 }
