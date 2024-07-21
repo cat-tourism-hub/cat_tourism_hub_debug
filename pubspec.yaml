@@ -33,6 +33,7 @@ dependencies:
   flutter_iconpicker: ^3.4.5
 
   cupertino_icons: ^1.0.6
+  firebase_app_check: ^0.3.0+3
 
 dev_dependencies:
   flutter_test:

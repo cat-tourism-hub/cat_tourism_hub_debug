@@ -4,12 +4,13 @@ import 'package:cat_tourism_hub/business/sign_up.dart';
 import 'package:cat_tourism_hub/business/splash.dart';
 import 'package:cat_tourism_hub/firebase_options.dart';
 import 'package:cat_tourism_hub/auth/auth_provider.dart';
-import 'package:cat_tourism_hub/providers/establishment_provider.dart';
+import 'package:cat_tourism_hub/providers/partner_acct_provider.dart';
 import 'package:cat_tourism_hub/providers/product_provider.dart';
 import 'package:cat_tourism_hub/providers/partners_provider.dart';
 import 'package:cat_tourism_hub/users/homepage.dart';
 import 'package:cat_tourism_hub/utils/snackbar_helper.dart';
 import 'package:cat_tourism_hub/values/strings.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +22,24 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // await FirebaseAppCheck.instance.activate(
+  //   // You can also use a `ReCaptchaEnterpriseProvider` provider instance as an
+  //   // argument for `webProvider`
+  //   webProvider: ReCaptchaV3Provider('cattourismhub'),
+  //   // Default provider for Android is the Play Integrity provider. You can use the "AndroidProvider" enum to choose
+  //   // your preferred provider. Choose from:
+  //   // 1. Debug provider
+  //   // 2. Safety Net provider
+  //   // 3. Play Integrity provider
+  //   androidProvider: AndroidProvider.debug,
+  //   // Default provider for iOS/macOS is the Device Check provider. You can use the "AppleProvider" enum to choose
+  //   // your preferred provider. Choose from:
+  //   // 1. Debug provider
+  //   // 2. Device Check provider
+  //   // 3. App Attest provider
+  //   // 4. App Attest provider with fallback to Device Check provider (App Attest provider is only available on iOS 14.0+, macOS 14.0+)
+  //   appleProvider: AppleProvider.appAttest,
+  // );
 
   setPathUrlStrategy();
 
@@ -85,7 +104,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
-        ChangeNotifierProvider(create: (_) => EstablishmentProvider()),
+        ChangeNotifierProvider(create: (_) => PartnerAcctProvider()),
         ChangeNotifierProvider(create: (_) => PartnersProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
       ],

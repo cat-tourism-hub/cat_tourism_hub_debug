@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:cat_tourism_hub/models/establishment.dart';
 import 'package:cat_tourism_hub/models/photo.dart';
-import 'package:cat_tourism_hub/providers/establishment_provider.dart';
+import 'package:cat_tourism_hub/providers/partner_acct_provider.dart';
 import 'package:cat_tourism_hub/utils/snackbar_helper.dart';
 import 'package:cat_tourism_hub/values/strings.dart';
 import 'package:flutter/foundation.dart';
@@ -45,25 +44,62 @@ class _SignUpState extends State<SignUp> {
   TextEditingController? website = TextEditingController();
   TextEditingController? otherTypeController = TextEditingController();
 
-  File? logo;
   Uint8List? logoWeb;
   String? logoPath;
 
-  File? banner;
   Uint8List? bannerWeb;
   String? bannerPath;
 
-  File? bussPerm;
   Uint8List? bussPermWeb;
   String? bussPermPath;
 
-  File? sanitPerm;
   Uint8List? sanitPermWeb;
   String? sanitPermPath;
 
-  File? dotCert;
   Uint8List? dotCertWeb;
   String? dotCertPath;
+
+  Future _saveData() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+      Establishment establishment = Establishment(
+        name: name.text,
+        about: about?.text,
+        type: bType!,
+        status: 'PENDING',
+        location: {
+          'bldg': bldg?.text,
+          'street': street?.text,
+          'municipality': selectedMunicipality,
+          'barangay': selectedBarangay,
+        },
+        contact: {
+          'name': cName?.text,
+          'email': email?.text,
+          'phone': pNum?.text,
+          'socmed': socMed?.text,
+          'website': website?.text,
+        },
+      );
+
+      List<Photo> photos = [
+        Photo(title: 'logo', image: logoWeb),
+        Photo(title: 'banner', image: bannerWeb),
+        Photo(title: 'bussPerm', image: bussPermWeb),
+        Photo(title: 'sanitPerm', image: sanitPermWeb),
+        Photo(title: 'dotCert', image: dotCertWeb),
+      ];
+
+      var result = await submitForm(establishment, photos);
+      setState(() {
+        _isLoading = false;
+      });
+
+      SnackbarHelper.showSnackBar(result);
+    }
+  }
 
   Widget _buildStepContent(BuildContext context) {
     switch (_currentStep) {
@@ -242,81 +278,16 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  // Future pickImage(String context) async {
-  //   final ImagePicker picker = ImagePicker();
-  //   XFile? image = await picker.pickImage(source: ImageSource.gallery);
-  //   if (kIsWeb) {
-  //     if (image != null) {
-  //       var selected = await image.readAsBytes();
-
-  //       if (context == 'logo') {
-  //         setState(() {
-  //           logoWeb = selected;
-  //           logoPath = image.path;
-  //         });
-  //       } else if (context == 'banner') {
-  //         setState(() {
-  //           bannerWeb = selected;
-  //           bannerPath = image.path;
-  //         });
-  //       } else if (context == 'bussPerm') {
-  //         setState(() {
-  //           bussPermWeb = selected;
-  //           bussPermPath = image.path;
-  //         });
-  //       } else if (context == 'sanitPerm') {
-  //         setState(() {
-  //           sanitPermWeb = selected;
-  //           sanitPermPath = image.path;
-  //         });
-  //       } else if (context == 'dotCert') {
-  //         setState(() {
-  //           dotCertWeb = selected;
-  //           dotCertPath = image.path;
-  //         });
-  //       }
-  //     }
-  //   } else {
-  //     if (image != null) {
-  //       var selected = File(image.path);
-  //       if (context == 'logo') {
-  //         setState(() {
-  //           logo = selected;
-  //         });
-  //       } else if (context == 'banner') {
-  //         setState(() {
-  //           banner = selected;
-  //         });
-  //       } else if (context == 'bussPerm') {
-  //         setState(() {
-  //           bussPerm = selected;
-  //           bussPermPath = image.path;
-  //         });
-  //       } else if (context == 'sanitPerm') {
-  //         setState(() {
-  //           sanitPerm = selected;
-  //           sanitPermPath = image.path;
-  //         });
-  //       } else if (context == 'dotCert') {
-  //         setState(() {
-  //           dotCert = selected;
-  //           dotCertPath = image.path;
-  //         });
-  //       }
-  //     }
-  //   }
-  // }
-
   Future<void> pickImage(String context) async {
     final ImagePicker picker = ImagePicker();
     XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image == null) return;
 
-    final imageBytes = kIsWeb ? await image.readAsBytes() : null;
-    final imageFile = !kIsWeb ? File(image.path) : null;
+    final imageBytes = await image.readAsBytes();
+    // final imageFile = !kIsWeb ? File(image.path) : null;
 
-    final contextMapWeb = {
+    final contextMap = {
       'logo': () {
         setState(() {
           logoWeb = imageBytes;
@@ -332,59 +303,24 @@ class _SignUpState extends State<SignUp> {
       'bussPerm': () {
         setState(() {
           bussPermWeb = imageBytes;
-          bussPermPath = image.path;
+          bussPermPath = image.name;
         });
       },
       'sanitPerm': () {
         setState(() {
           sanitPermWeb = imageBytes;
-          sanitPermPath = image.path;
+          sanitPermPath = image.name;
         });
       },
       'dotCert': () {
         setState(() {
           dotCertWeb = imageBytes;
-          dotCertPath = image.path;
+          dotCertPath = image.name;
         });
       },
     };
 
-    final contextMapMobile = {
-      'logo': () {
-        setState(() {
-          logo = imageFile;
-        });
-      },
-      'banner': () {
-        setState(() {
-          banner = imageFile;
-        });
-      },
-      'bussPerm': () {
-        setState(() {
-          bussPerm = imageFile;
-          bussPermPath = image.path;
-        });
-      },
-      'sanitPerm': () {
-        setState(() {
-          sanitPerm = imageFile;
-          sanitPermPath = image.path;
-        });
-      },
-      'dotCert': () {
-        setState(() {
-          dotCert = imageFile;
-          dotCertPath = image.path;
-        });
-      },
-    };
-
-    if (kIsWeb) {
-      contextMapWeb[context]?.call();
-    } else {
-      contextMapMobile[context]?.call();
-    }
+    contextMap[context]?.call();
   }
 
   Widget _buildLogoStep(BuildContext context) {
@@ -407,15 +343,10 @@ class _SignUpState extends State<SignUp> {
                     logoWeb!,
                     fit: BoxFit.contain,
                   )
-                : logo != null
-                    ? Image.file(
-                        logo!,
-                        fit: BoxFit.contain,
-                      )
-                    : const Icon(
-                        Icons.add_a_photo,
-                        size: 50,
-                      ),
+                : const Icon(
+                    Icons.add_a_photo,
+                    size: 50,
+                  ),
           ),
         ),
         if (showLogoError)
@@ -475,15 +406,10 @@ class _SignUpState extends State<SignUp> {
                     bannerWeb!,
                     fit: BoxFit.contain,
                   )
-                : banner != null
-                    ? Image.file(
-                        banner!,
-                        fit: BoxFit.contain,
-                      )
-                    : const Icon(
-                        Icons.add_a_photo,
-                        size: 50,
-                      ),
+                : const Icon(
+                    Icons.add_a_photo,
+                    size: 50,
+                  ),
           ),
         ),
         if (showBannerError)
@@ -814,60 +740,7 @@ class _SignUpState extends State<SignUp> {
               child: const Text('Back'),
             ),
             ElevatedButton(
-              onPressed: _isLoading
-                  ? null
-                  : () async {
-                      if (_formKey.currentState!.validate()) {
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        Establishment establishment = Establishment(
-                          name: name.text,
-                          about: about?.text,
-                          type: bType!,
-                          status: 'PENDING',
-                          location: {
-                            'bldg': bldg?.text,
-                            'street': street?.text,
-                            'municipality': selectedMunicipality,
-                            'barangay': selectedBarangay,
-                          },
-                          contact: {
-                            'name': cName?.text,
-                            'email': email?.text,
-                            'phone': pNum?.text,
-                            'socmed': socMed?.text,
-                            'website': website?.text,
-                          },
-                        );
-
-                        List<Photo> photos = [
-                          Photo(title: 'logo', image: logo, webImage: logoWeb),
-                          Photo(
-                              title: 'banner',
-                              image: banner,
-                              webImage: bannerWeb),
-                          Photo(
-                              title: 'bussPerm',
-                              image: bussPerm,
-                              webImage: bussPermWeb),
-                          Photo(
-                              title: 'sanitPerm',
-                              image: sanitPerm,
-                              webImage: sanitPermWeb),
-                          Photo(
-                              title: 'dotCert',
-                              image: dotCert,
-                              webImage: dotCertWeb),
-                        ];
-
-                        String result = await submitForm(establishment, photos);
-                        setState(() {
-                          _isLoading = false;
-                        });
-                        SnackbarHelper.showSnackBar(result);
-                      }
-                    },
+              onPressed: _isLoading ? null : _saveData,
               child: _isLoading
                   ? LoadingAnimationWidget.horizontalRotatingDots(
                       color: Colors.blue,
@@ -936,7 +809,9 @@ class _SignUpState extends State<SignUp> {
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headlineLarge),
                   ),
-                  Expanded(child: _buildStepContent(context)),
+                  Expanded(
+                      child: SingleChildScrollView(
+                          child: _buildStepContent(context))),
                 ],
               ),
             ),

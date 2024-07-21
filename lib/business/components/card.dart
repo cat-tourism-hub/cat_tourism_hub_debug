@@ -110,12 +110,13 @@ class BusinessDataCard extends StatelessWidget {
                                 style: const TextStyle(fontSize: 14),
                               ),
                             ),
-                            Flexible(
-                              child: Text(
-                                data.pricePer,
-                                style: const TextStyle(fontSize: 14),
+                            if (data.pricePer != 'none')
+                              Flexible(
+                                child: Text(
+                                  data.pricePer,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
                               ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 14),

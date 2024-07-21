@@ -76,13 +76,11 @@ class ProductProvider with ChangeNotifier {
       var formData = {
         ...product.toJson(),
       };
+      print(product.toJson());
       final response =
           await http.post(uri, headers: headers, body: jsonEncode(formData));
 
       if (response.statusCode == 201) {
-        products.add(
-            product); // Add to the hotel room list without fetching from db again
-
         notifyListeners();
         return 'Product/Service added successfully';
       } else {

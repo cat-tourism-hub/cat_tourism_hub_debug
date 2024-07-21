@@ -2,7 +2,9 @@ String appName = 'Catanduanes Tourism Hub';
 
 class AppStrings {
   const AppStrings._();
-  static const String baseApiUrl = 'http://127.0.0.1:5000';
+  // Use https://cat-tourism-hub-api.onrender.com on server
+  // Use http://127.0.0.1:5000 on local
+  static const String baseApiUrl = 'https://cat-tourism-hub-api.onrender.com';
   static const String municipalitUrl =
       'https://psgc.gitlab.io/api/provinces/052000000/municipalities/';
   static const String homepage = 'Homepage';

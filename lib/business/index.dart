@@ -4,7 +4,7 @@ import 'package:cat_tourism_hub/business/sections/dashboard_content.dart';
 import 'package:cat_tourism_hub/business/sections/products_services.dart';
 import 'package:cat_tourism_hub/business/sections/admin_panel.dart';
 import 'package:cat_tourism_hub/models/establishment.dart';
-import 'package:cat_tourism_hub/providers/establishment_provider.dart';
+import 'package:cat_tourism_hub/providers/partner_acct_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -44,7 +44,7 @@ class _IndexState extends State<Index> {
   Widget build(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width < 1000;
 
-    return Consumer<EstablishmentProvider>(
+    return Consumer<PartnerAcctProvider>(
       builder: (context, value, child) => Scaffold(
         key: _key,
         appBar: isSmallScreen

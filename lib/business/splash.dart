@@ -1,6 +1,6 @@
 import 'package:cat_tourism_hub/business/index.dart';
 import 'package:cat_tourism_hub/auth/auth_provider.dart';
-import 'package:cat_tourism_hub/providers/establishment_provider.dart';
+import 'package:cat_tourism_hub/providers/partner_acct_provider.dart';
 import 'package:cat_tourism_hub/values/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -15,11 +15,10 @@ class BusinessDashboard extends StatelessWidget {
         Provider.of<AuthenticationProvider>(context, listen: false);
     String userUid = provider.user!.uid;
     final estbProvider =
-        Provider.of<EstablishmentProvider>(context, listen: false);
+        Provider.of<PartnerAcctProvider>(context, listen: false);
     estbProvider.getEstablishmentDetails(userUid);
-    return Consumer<EstablishmentProvider>(
-      builder:
-          (BuildContext context, EstablishmentProvider value, Widget? child) {
+    return Consumer<PartnerAcctProvider>(
+      builder: (context, value, child) {
         if (value.establishment == null) {
           return Scaffold(
             body: Center(

@@ -133,12 +133,12 @@ class BusinessDrawer extends StatelessWidget {
                   ),
                 )
               : IconButton(
-                  onPressed: () async {
-                    await AuthenticationProvider().signOut();
-                    if (!context.mounted) return;
-                    context.go('/');
+                  onPressed: () {
+                    AuthenticationProvider().signOut();
+                    context.pushReplacementNamed('homepage');
                   },
-                  icon: const Icon(Icons.logout))
+                  icon: const Icon(Icons.logout),
+                )
         ],
       ),
     );

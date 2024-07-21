@@ -2,7 +2,7 @@ import 'package:cat_tourism_hub/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/business/components/price_field.dart';
 import 'package:cat_tourism_hub/models/photo.dart';
 import 'package:cat_tourism_hub/models/product.dart';
-import 'package:cat_tourism_hub/providers/establishment_provider.dart';
+import 'package:cat_tourism_hub/providers/partner_acct_provider.dart';
 import 'package:cat_tourism_hub/providers/product_provider.dart';
 import 'package:cat_tourism_hub/utils/image_picker.dart';
 import 'package:cat_tourism_hub/utils/snackbar_helper.dart';
@@ -74,7 +74,7 @@ class _AddProductState extends State<AddProduct> {
     });
 
     try {
-      final value1 = Provider.of<EstablishmentProvider>(context, listen: false);
+      final value1 = Provider.of<PartnerAcctProvider>(context, listen: false);
       final value3 =
           Provider.of<AuthenticationProvider>(context, listen: false);
       final value2 = Provider.of<ProductProvider>(context, listen: false);
@@ -92,10 +92,11 @@ class _AddProductState extends State<AddProduct> {
                 _controllers['${field['key']}_value']?.text ?? ''
         },
       );
-      await value2.uploadNewProduct(
+
+      String response = await value2.uploadNewProduct(
           value3.token ?? '', value3.user!.uid, value1.establishment!, product);
 
-      SnackbarHelper.showSnackBar('${_nameController.text} added succesfully');
+      SnackbarHelper.showSnackBar(response);
     } catch (e) {
       SnackbarHelper.showSnackBar('Failed to upload room: ${e.toString()}');
     } finally {
@@ -228,15 +229,12 @@ class _AddProductState extends State<AddProduct> {
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: _imageFiles.length,
-                              itemBuilder: (context, index) => kIsWeb
-                                  ? Container(
-                                      margin: const EdgeInsets.all(10),
-                                      child: Image.memory(
-                                          _imageFiles[index].webImage!,
-                                          fit: BoxFit.fill),
-                                    )
-                                  : Image.file(_imageFiles[index].image!,
-                                      fit: BoxFit.contain)),
+                              itemBuilder: (context, index) => Container(
+                                    margin: const EdgeInsets.all(10),
+                                    child: Image.memory(
+                                        _imageFiles[index].image!,
+                                        fit: BoxFit.fill),
+                                  )),
                         )
                       : DottedBorder(
                           borderType: BorderType.RRect,

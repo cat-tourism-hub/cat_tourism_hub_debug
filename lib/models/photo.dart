@@ -1,26 +1,23 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 class Photo {
-  final String? path;
   final String? title;
-  final File? image;
-  final Uint8List? webImage;
+  final Uint8List? image;
+  final String? link;
 
-  Photo({this.path, this.title, this.image, this.webImage});
+  Photo({this.title, this.image, this.link});
 
   factory Photo.fromJson(Map<String, dynamic> json) {
     return Photo(
-      webImage:
-          json['webImage'] != null ? base64Decode(json['webImage']) : null,
+      image: json['image'] != null ? base64Decode(json['image']) : null,
       title: json['title'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'webImage': webImage != null ? base64Encode(webImage!) : null,
+      'image': image != null ? base64Encode(image!) : null,
       'title': title,
     };
   }

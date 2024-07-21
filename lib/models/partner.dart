@@ -4,6 +4,7 @@ class Partner {
   final String? type;
   final String? logo;
   final String? banner;
+  final double? lowestPrice;
   final Map? location;
   final Map? contact;
 
@@ -13,6 +14,7 @@ class Partner {
     this.type,
     this.logo,
     this.banner,
+    this.lowestPrice,
     this.location,
     this.contact,
   });
@@ -36,5 +38,9 @@ class Partner {
       'location': location,
       'contact': contact,
     };
+  }
+
+  String locationString() {
+    return '${location?['bldg']}, ${location?['street']}, ${location?['brgy']}, ${location?['municipality']}';
   }
 }

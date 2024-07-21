@@ -9,6 +9,7 @@ class Establishment {
   final Map? location;
   final Map? contact;
   final Map? legals;
+  final List? facilitiesAmenities;
 
   Establishment(
       {this.name,
@@ -20,20 +21,21 @@ class Establishment {
       this.userUid,
       this.location,
       this.contact,
-      this.legals});
+      this.legals,
+      this.facilitiesAmenities});
 
   factory Establishment.fromJson(Map<String, dynamic> json) {
     return Establishment(
-      name: json['estb']['name'],
-      about: json['estb']['about'],
-      logo: json['logo'],
-      banner: json['banner'],
-      type: json['estb']['type'],
-      status: json['estb']['status'],
-      location: json['location'],
-      contact: json['contact'],
-      legals: json['legals'],
-    );
+        name: json['estb']['name'],
+        about: json['estb']['about'],
+        logo: json['logo'],
+        banner: json['banner'],
+        type: json['estb']['type'],
+        status: json['estb']['status'],
+        location: json['location'],
+        contact: json['contact'],
+        legals: json['legals'],
+        facilitiesAmenities: json['facilities_amenities']);
   }
   Map<String, dynamic> toJson() {
     return {

@@ -1,9 +1,11 @@
 import 'package:cat_tourism_hub/models/partner.dart';
 import 'package:cat_tourism_hub/providers/partners_provider.dart';
 import 'package:cat_tourism_hub/users/components/drawer.dart';
+import 'package:cat_tourism_hub/users/components/partner_card.dart';
 import 'package:cat_tourism_hub/values/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -68,22 +70,13 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(
-                height: 150,
+                height: 300,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: partners.length,
                   itemBuilder: (context, index) {
                     var partner = partners[index];
-                    return Card(
-                      margin: const EdgeInsets.all(8.0),
-                      child: Container(
-                        width: 150,
-                        padding: const EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Text(partner.name!),
-                        ),
-                      ),
-                    );
+                    return PartnerCard(data: partner);
                   },
                 ),
               ),
@@ -95,8 +88,9 @@ class _HomePageState extends State<HomePage> {
     return partnerList;
   }
 
-  Widget desktopView(List<Partner> partners) {
-    Map<String, List<Partner>> groupedPartners = _groupPartnersByType(partners);
+  Widget desktopView(PartnersProvider value) {
+    Map<String, List<Partner>> groupedPartners =
+        _groupPartnersByType(value.partners);
 
     Map<String, List<Partner>> filteredPartners = {};
     groupedPartners.forEach((type, partners) {
@@ -125,54 +119,70 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: const CustomDrawer(),
       body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Image.asset(
-                  'assets/images/dot_catanduanes.jpg',
-                  width: screenWidth,
-                  height: screenHeight * 0.6,
-                  fit: BoxFit.fitHeight,
-                ),
-                Center(
-                  child: SizedBox(
-                      width: screenWidth < 1000
-                          ? screenWidth * 0.9
-                          : screenWidth * 0.5,
-                      child: Opacity(
-                        opacity: 0.9,
-                        child: SearchBar(
-                          hintText: 'Search the happy island.',
-                          leading: const Icon(Icons.search_outlined),
-                          onChanged: (value) {
-                            setState(() {
-                              searchQuery = value;
-                            });
-                          },
-                        ),
-                      )),
-                ),
-              ],
-            ),
-            SizedBox(
-              width: screenWidth * 0.7,
-              child: Column(
-                children: searchQuery.isEmpty
-                    ? _buildPartnerList(groupedPartners)
-                    : _buildPartnerList(filteredPartners),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/dot_catanduanes.jpg',
+                    width: screenWidth,
+                    height: screenHeight * 0.6,
+                    fit: BoxFit.fitHeight,
+                  ),
+                  Center(
+                    child: SizedBox(
+                        width: screenWidth < 1000
+                            ? screenWidth * 0.9
+                            : screenWidth * 0.5,
+                        child: Opacity(
+                          opacity: 0.9,
+                          child: SearchBar(
+                            hintText: 'Search the happy island.',
+                            leading: const Icon(Icons.search_outlined),
+                            onChanged: (value) {
+                              setState(() {
+                                searchQuery = value;
+                              });
+                            },
+                          ),
+                        )),
+                  ),
+                ],
               ),
-            ),
-          ],
+              if (value.error.isNotEmpty && !value.isLoading)
+                Column(
+                  children: [
+                    const Text('Error gathering all the happy places.'),
+                    TextButton(
+                        onPressed: () => value.fetchPartners(),
+                        child: const Text('Try again'))
+                  ],
+                ),
+              SizedBox(
+                width: screenWidth * 0.7,
+                child: value.isLoading && value.partners.isEmpty
+                    ? LoadingAnimationWidget.inkDrop(
+                        color: Colors.blue, size: 50)
+                    : Column(
+                        children: searchQuery.isEmpty
+                            ? _buildPartnerList(groupedPartners)
+                            : _buildPartnerList(filteredPartners),
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget mobileView(List<Partner> partners) {
-    Map<String, List<Partner>> groupedPartners = _groupPartnersByType(partners);
+  Widget mobileView(PartnersProvider value) {
+    Map<String, List<Partner>> groupedPartners =
+        _groupPartnersByType(value.partners);
 
     Map<String, List<Partner>> filteredPartners = {};
     groupedPartners.forEach((type, partners) {
@@ -193,7 +203,7 @@ class _HomePageState extends State<HomePage> {
             Center(
               child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 20),
-                  padding: const EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(10),
                   width: screenWidth < 1000
                       ? screenWidth * 0.9
                       : screenWidth * 0.5,
@@ -208,13 +218,24 @@ class _HomePageState extends State<HomePage> {
                     },
                   )),
             ),
+            if (value.error.isNotEmpty && !value.isLoading)
+              Column(
+                children: [
+                  const Text('Error gathering all the happy places.'),
+                  TextButton(
+                      onPressed: () => value.fetchPartners(),
+                      child: const Text('Try again'))
+                ],
+              ),
             SizedBox(
               width: screenWidth * 0.9,
-              child: Column(
-                children: searchQuery.isEmpty
-                    ? _buildPartnerList(groupedPartners)
-                    : _buildPartnerList(filteredPartners),
-              ),
+              child: value.isLoading && value.partners.isEmpty
+                  ? LoadingAnimationWidget.inkDrop(color: Colors.blue, size: 50)
+                  : Column(
+                      children: searchQuery.isEmpty
+                          ? _buildPartnerList(groupedPartners)
+                          : _buildPartnerList(filteredPartners),
+                    ),
             ),
           ],
         ));
@@ -229,9 +250,9 @@ class _HomePageState extends State<HomePage> {
         return LayoutBuilder(
           builder: (context, constraints) {
             if (screenWidth < 1000) {
-              return mobileView(value.partners);
+              return mobileView(value);
             }
-            return desktopView(value.partners);
+            return desktopView(value);
           },
         );
       },

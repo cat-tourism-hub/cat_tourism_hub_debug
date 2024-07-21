@@ -1,661 +1,6 @@
-// import 'package:cat_tourism_hub/providers/establishment_provider.dart';
-// import 'package:cat_tourism_hub/values/strings.dart';
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-
-// class PartnerDetails extends StatefulWidget {
-//   const PartnerDetails({super.key});
-
-//   @override
-//   State<PartnerDetails> createState() => _PartnerDetailsState();
-// }
-
-// class _PartnerDetailsState extends State<PartnerDetails> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Consumer<EstablishmentProvider>(
-//       builder: (context, value, child) => SingleChildScrollView(
-//         child: Padding(
-//           padding: const EdgeInsets.all(10),
-//           child: LayoutBuilder(
-//             builder: (context, constraints) {
-//               bool isMobile = constraints.maxWidth < 600;
-//               return Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   // Partner Header
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                     children: [
-//                       Expanded(
-//                         child: Text(
-//                           AppStrings.partnerHeader,
-//                           style: Theme.of(context).textTheme.headlineLarge,
-//                         ),
-//                       ),
-//                       Card(
-//                         child: TextButton.icon(
-//                             icon: const Icon(Icons.edit_outlined),
-//                             onPressed: () {},
-//                             label: Text(
-//                               'Edit',
-//                               style: Theme.of(context).textTheme.bodyMedium,
-//                             )),
-//                       ),
-//                     ],
-//                   ),
-//                   const SizedBox(height: 14),
-//                   // Establishment Label
-//                   if (!isMobile)
-//                     Row(
-//                       mainAxisSize: MainAxisSize.max,
-//                       children: [
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.name,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.estType,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-
-//                   // Establishment details
-//                   (!isMobile)
-//                       ? Row(
-//                           children: [
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.apartment_outlined),
-//                                   title: Text(
-//                                     value.establishment!.name!,
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.domain_outlined),
-//                                   title: Text(value.establishment!.type!),
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         )
-//                       : Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               AppStrings.name,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.apartment_outlined),
-//                                 title: Text(
-//                                   value.establishment!.name!,
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                             const SizedBox(height: 10),
-//                             Text(
-//                               AppStrings.estType,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.domain_outlined),
-//                                 title: Text(value.establishment!.type!),
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                   const SizedBox(height: 14),
-//                   // About label
-//                   if (!isMobile)
-//                     Row(
-//                       mainAxisSize: MainAxisSize.max,
-//                       children: [
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.about,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.estStatus,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-
-//                   // About details
-//                   (!isMobile)
-//                       ? Row(
-//                           mainAxisSize: MainAxisSize.max,
-//                           children: [
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.info_outline),
-//                                   title: Text(
-//                                     value.establishment!.about!,
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.pending_outlined),
-//                                   title: Text(
-//                                     value.establishment!.status!,
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         )
-//                       : Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               AppStrings.about,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.info_outline),
-//                                 title: Text(
-//                                   value.establishment!.about!,
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                             const SizedBox(height: 10),
-//                             Text(
-//                               AppStrings.estStatus,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.pending_outlined),
-//                                 title: Text(
-//                                   value.establishment!.status!,
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                   const SizedBox(height: 20),
-//                   const Divider(thickness: 1.5),
-//                   const SizedBox(height: 20),
-//                   // Contact Header
-//                   Text(
-//                     AppStrings.contactInfo,
-//                     style: Theme.of(context).textTheme.headlineLarge,
-//                   ),
-//                   const SizedBox(height: 14),
-//                   // Contact label
-//                   if (!isMobile)
-//                     Row(
-//                       mainAxisSize: MainAxisSize.max,
-//                       children: [
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.phone,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.email,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-
-//                   // Contact details
-//                   (!isMobile)
-//                       ? Row(
-//                           mainAxisSize: MainAxisSize.max,
-//                           children: [
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.phone_outlined),
-//                                   title: Text(
-//                                     value.establishment!.contact!['phone'],
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.email_outlined),
-//                                   title: Text(
-//                                     value.establishment!.contact!['email'],
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         )
-//                       : Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               AppStrings.phone,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.phone_outlined),
-//                                 title: Text(
-//                                   value.establishment!.contact!['phone'],
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                             const SizedBox(height: 10),
-//                             Text(
-//                               AppStrings.email,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.email_outlined),
-//                                 title: Text(
-//                                   value.establishment!.contact!['email'],
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                   const SizedBox(height: 14),
-//                   // Socmed label
-//                   if (!isMobile)
-//                     Row(
-//                       mainAxisSize: MainAxisSize.max,
-//                       children: [
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.socmed,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.website,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   // Socmed details
-//                   (!isMobile)
-//                       ? Row(
-//                           mainAxisSize: MainAxisSize.max,
-//                           children: [
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.facebook_outlined),
-//                                   title: Text(
-//                                     value
-//                                         .establishment!.contact!['social_link'],
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.public_outlined),
-//                                   title: Text(
-//                                     value.establishment!.contact!['website'],
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         )
-//                       : Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               AppStrings.socmed,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.facebook_outlined),
-//                                 title: Text(
-//                                   value.establishment!.contact!['social_link'],
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                             const SizedBox(height: 10),
-//                             Text(
-//                               AppStrings.website,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.public_outlined),
-//                                 title: Text(
-//                                   value.establishment!.contact!['website'],
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                   const SizedBox(height: 20),
-//                   const Divider(thickness: 1.5),
-//                   const SizedBox(height: 20),
-//                   // Location Header
-//                   Text(
-//                     AppStrings.locInfo,
-//                     style: Theme.of(context).textTheme.headlineLarge,
-//                   ),
-//                   const SizedBox(height: 14),
-//                   // Building label
-//                   if (!isMobile)
-//                     Row(
-//                       mainAxisSize: MainAxisSize.max,
-//                       children: [
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.building,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.street,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   // Building details
-//                   (!isMobile)
-//                       ? Row(
-//                           mainAxisSize: MainAxisSize.max,
-//                           children: [
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.apartment_outlined),
-//                                   title: Text(
-//                                     value.establishment!.location!['bldg'],
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading:
-//                                       const Icon(Icons.navigation_outlined),
-//                                   title: Text(
-//                                     value.establishment!.location!['street'],
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         )
-//                       : Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               AppStrings.building,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.apartment_outlined),
-//                                 title: Text(
-//                                   value.establishment!.location!['bldg'],
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                             const SizedBox(height: 10),
-//                             Text(
-//                               AppStrings.street,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.navigation_outlined),
-//                                 title: Text(
-//                                   value.establishment!.location!['street'],
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                   const SizedBox(height: 14),
-//                   // Barangay label
-//                   if (!isMobile)
-//                     Row(
-//                       mainAxisSize: MainAxisSize.max,
-//                       children: [
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.barangay,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.municipality,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   // Barangay details
-//                   (!isMobile)
-//                       ? Row(
-//                           mainAxisSize: MainAxisSize.max,
-//                           children: [
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.explore_outlined),
-//                                   title: Text(
-//                                     value.establishment!.location!['brgy'],
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                             Expanded(
-//                               child: Card(
-//                                 child: ListTile(
-//                                   leading: const Icon(Icons.map_outlined),
-//                                   title: Text(
-//                                     value.establishment!
-//                                         .location!['municipality'],
-//                                     style:
-//                                         Theme.of(context).textTheme.bodyMedium,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         )
-//                       : Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               AppStrings.barangay,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.explore),
-//                                 title: Text(
-//                                   value.establishment!.location!['brgy'],
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                             const SizedBox(height: 10),
-//                             Text(
-//                               AppStrings.municipality,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: ListTile(
-//                                 leading: const Icon(Icons.map),
-//                                 title: Text(
-//                                   value
-//                                       .establishment!.location!['municipality'],
-//                                   style: Theme.of(context).textTheme.bodyMedium,
-//                                 ),
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                   const SizedBox(height: 20),
-//                   const Divider(thickness: 1.5),
-//                   const SizedBox(height: 20),
-//                   // Legalities
-//                   Text(
-//                     AppStrings.legalities,
-//                     style: Theme.of(context).textTheme.headlineLarge,
-//                   ),
-//                   const SizedBox(height: 14),
-//                   if (!isMobile)
-//                     Row(
-//                       mainAxisSize: MainAxisSize.max,
-//                       children: [
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.bussPermit,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.sanitPerm,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                         Expanded(
-//                           child: Text(
-//                             AppStrings.dotCert,
-//                             style: Theme.of(context).textTheme.labelMedium,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   (!isMobile)
-//                       ? Row(
-//                           mainAxisSize: MainAxisSize.max,
-//                           children: [
-//                             Flexible(
-//                               child: Card(
-//                                 child: Image.network(
-//                                     value.establishment!.legals!['bussPermit']),
-//                               ),
-//                             ),
-//                             Flexible(
-//                               child: Card(
-//                                 child: Image.network(
-//                                     value.establishment!.legals!['sanitPerm']),
-//                               ),
-//                             ),
-//                             Flexible(
-//                               child: Card(
-//                                 child: Image.network(
-//                                     value.establishment!.legals!['dotCert']),
-//                               ),
-//                             ),
-//                           ],
-//                         )
-//                       : Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               AppStrings.bussPermit,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: Image.network(
-//                                   value.establishment!.legals!['bussPermit']),
-//                             ),
-//                             const SizedBox(height: 10),
-//                             Text(
-//                               AppStrings.sanitPerm,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: Image.network(
-//                                   value.establishment!.legals!['sanitPerm']),
-//                             ),
-//                             const SizedBox(height: 10),
-//                             Text(
-//                               AppStrings.dotCert,
-//                               style: Theme.of(context).textTheme.labelMedium,
-//                             ),
-//                             Card(
-//                               child: Image.network(
-//                                   value.establishment!.legals!['dotCert']),
-//                             ),
-//                           ],
-//                         ),
-//                 ],
-//               );
-//             },
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-import 'package:cat_tourism_hub/providers/establishment_provider.dart';
+import 'package:cat_tourism_hub/auth/auth_provider.dart';
+import 'package:cat_tourism_hub/providers/partner_acct_provider.dart';
+import 'package:cat_tourism_hub/utils/snackbar_helper.dart';
 import 'package:cat_tourism_hub/values/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -669,104 +14,89 @@ class PartnerDetails extends StatefulWidget {
 
 class _PartnerDetailsState extends State<PartnerDetails> {
   bool isEditMode = false;
-  late TextEditingController nameController;
-  late TextEditingController aboutController;
-  late TextEditingController phoneController;
-  late TextEditingController emailController;
-  late TextEditingController socialLinkController;
-  late TextEditingController websiteController;
-  late TextEditingController buildingController;
-  late TextEditingController streetController;
-  late TextEditingController barangayController;
-  late TextEditingController municipalityController;
+  late Map<String, TextEditingController> controllers;
+  late Map<String, String> initialValues;
 
   @override
   void initState() {
     super.initState();
     final establishment =
-        Provider.of<EstablishmentProvider>(context, listen: false)
-            .establishment!;
-    nameController = TextEditingController(text: establishment.name);
-    aboutController = TextEditingController(text: establishment.about);
-    phoneController =
-        TextEditingController(text: establishment.contact!['phone']);
-    emailController =
-        TextEditingController(text: establishment.contact!['email']);
-    socialLinkController =
-        TextEditingController(text: establishment.contact!['social_link']);
-    websiteController =
-        TextEditingController(text: establishment.contact!['website']);
-    buildingController =
-        TextEditingController(text: establishment.location!['bldg']);
-    streetController =
-        TextEditingController(text: establishment.location!['street']);
-    barangayController =
-        TextEditingController(text: establishment.location!['brgy']);
-    municipalityController =
-        TextEditingController(text: establishment.location!['municipality']);
+        Provider.of<PartnerAcctProvider>(context, listen: false).establishment!;
+    initialValues = {
+      'name': establishment.name!,
+      'about': establishment.about ?? '',
+      'phone': establishment.contact!['phone']!,
+      'email': establishment.contact!['email']!,
+      'social_link': establishment.contact!['social_link']!,
+      'website': establishment.contact!['website']!,
+      'bldg': establishment.location!['bldg']!,
+      'street': establishment.location!['street']!,
+      'brgy': establishment.location!['brgy']!,
+      'municipality': establishment.location!['municipality']!,
+    };
+
+    controllers = {
+      'name': TextEditingController(text: initialValues['name']),
+      'type': TextEditingController(text: initialValues['type']),
+      'about': TextEditingController(text: initialValues['about']),
+      'status': TextEditingController(text: initialValues['status']),
+      'phone': TextEditingController(text: initialValues['phone']),
+      'email': TextEditingController(text: initialValues['email']),
+      'social_link': TextEditingController(text: initialValues['social_link']),
+      'website': TextEditingController(text: initialValues['website']),
+      'bldg': TextEditingController(text: initialValues['bldg']),
+      'street': TextEditingController(text: initialValues['street']),
+      'brgy': TextEditingController(text: initialValues['brgy']),
+      'municipality':
+          TextEditingController(text: initialValues['municipality']),
+    };
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    aboutController.dispose();
-    phoneController.dispose();
-    emailController.dispose();
-    socialLinkController.dispose();
-    websiteController.dispose();
-    buildingController.dispose();
-    streetController.dispose();
-    barangayController.dispose();
-    municipalityController.dispose();
+    controllers.forEach((key, controller) => controller.dispose());
     super.dispose();
   }
 
+  bool hasChanges() {
+    for (var key in initialValues.keys) {
+      if (controllers[key]!.text != initialValues[key]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   void saveChanges() async {
+    if (!hasChanges()) {
+      setState(() {
+        isEditMode = false;
+      });
+      return;
+    }
+
     final establishmentProvider =
-        Provider.of<EstablishmentProvider>(context, listen: false);
+        Provider.of<PartnerAcctProvider>(context, listen: false);
+    final authProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
     final establishment = establishmentProvider.establishment!;
-    establishment.name = nameController.text;
-    establishment.about = aboutController.text;
-    establishment.contact!['phone'] = phoneController.text;
-    establishment.contact!['email'] = emailController.text;
-    establishment.contact!['social_link'] = socialLinkController.text;
-    establishment.contact!['website'] = websiteController.text;
-    establishment.location!['bldg'] = buildingController.text;
-    establishment.location!['street'] = streetController.text;
-    establishment.location!['brgy'] = barangayController.text;
-    establishment.location!['municipality'] = municipalityController.text;
+    establishment.name = controllers['name']!.text;
+    establishment.about = controllers['about']?.text;
+    establishment.contact?['phone'] = controllers['phone']?.text;
+    establishment.contact?['email'] = controllers['email']?.text;
+    establishment.contact?['social_link'] = controllers['social_link']?.text;
+    establishment.contact?['website'] = controllers['website']?.text;
+    establishment.location?['bldg'] = controllers['bldg']?.text;
+    establishment.location?['street'] = controllers['street']?.text;
+    establishment.location?['brgy'] = controllers['brgy']?.text;
+    establishment.location?['municipality'] = controllers['municipality']?.text;
 
-    print(establishment);
-
+    String result = await establishmentProvider.savePartnerDetails(
+        authProvider.user!.uid, establishment);
     setState(() {
       isEditMode = false;
     });
-    // final response = await http.post(
-    //   Uri.parse('http://your-flask-backend-url/endpoint'),
-    //   headers: <String, String>{
-    //     'Content-Type': 'application/json; charset=UTF-8',
-    //   },
-    //   body: jsonEncode(<String, dynamic>{
-    //     'name': establishment.name,
-    //     'type': establishment.type,
-    //     'about': establishment.about,
-    //     'status': establishment.status,
-    //     'contact': establishment.contact,
-    //     'location': establishment.location,
-    //   }),
-    // );
-
-    // if (response.statusCode == 200) {
-    //   // If the server did return a 200 OK response,
-    //   // then parse the JSON.
-    //   setState(() {
-    //     isEditMode = false;
-    //   });
-    // } else {
-    //   // If the server did not return a 200 OK response,
-    //   // then throw an exception.
-    //   throw Exception('Failed to save changes');
-    // }
+    SnackbarHelper.showSnackBar(result);
   }
 
   Widget _buildPartnerInfo(dynamic value, bool isMobile) {
@@ -784,7 +114,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                   leading: const Icon(Icons.apartment_outlined),
                   title: isEditMode
                       ? TextFormField(
-                          controller: nameController,
+                          controller: controllers['name'],
                           decoration: const InputDecoration(
                             hintText: AppStrings.name,
                           ),
@@ -823,7 +153,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                       leading: const Icon(Icons.info_outline),
                       title: isEditMode
                           ? TextFormField(
-                              controller: aboutController,
+                              controller: controllers['about'],
                               decoration: const InputDecoration(
                                 hintText: 'About',
                               ),
@@ -879,7 +209,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                         leading: const Icon(Icons.apartment_outlined),
                         title: isEditMode
                             ? TextFormField(
-                                controller: nameController,
+                                controller: controllers['name'],
                                 decoration: const InputDecoration(
                                   hintText: 'Name',
                                 ),
@@ -930,7 +260,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                         leading: const Icon(Icons.info_outline),
                         title: isEditMode
                             ? TextFormField(
-                                controller: aboutController,
+                                controller: controllers['about'],
                                 decoration: const InputDecoration(
                                   hintText: 'About',
                                 ),
@@ -976,25 +306,25 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                 ? Column(
                     children: [
                       TextFormField(
-                        controller: phoneController,
+                        controller: controllers['phone'],
                         decoration: const InputDecoration(
                           hintText: 'Phone',
                         ),
                       ),
                       TextFormField(
-                        controller: emailController,
+                        controller: controllers['email'],
                         decoration: const InputDecoration(
                           hintText: 'Email address',
                         ),
                       ),
                       TextFormField(
-                        controller: socialLinkController,
+                        controller: controllers['social_link'],
                         decoration: const InputDecoration(
                           hintText: 'Social media',
                         ),
                       ),
                       TextFormField(
-                        controller: websiteController,
+                        controller: controllers['website'],
                         decoration: const InputDecoration(
                           hintText: 'Website',
                         ),
@@ -1048,25 +378,25 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                 ? Column(
                     children: [
                       TextFormField(
-                        controller: buildingController,
+                        controller: controllers['bldg'],
                         decoration: const InputDecoration(
                           hintText: 'Building',
                         ),
                       ),
                       TextFormField(
-                        controller: streetController,
+                        controller: controllers['street'],
                         decoration: const InputDecoration(
                           hintText: 'Street',
                         ),
                       ),
                       TextFormField(
-                        controller: barangayController,
+                        controller: controllers['brgy'],
                         decoration: const InputDecoration(
                           hintText: 'Barangay',
                         ),
                       ),
                       TextFormField(
-                        controller: municipalityController,
+                        controller: controllers['municipality'],
                         decoration: const InputDecoration(
                           hintText: 'Municipality',
                         ),
@@ -1103,9 +433,117 @@ class _PartnerDetailsState extends State<PartnerDetails> {
     );
   }
 
+  Widget _buildLegalities(dynamic value, bool isMobile) {
+    return isMobile
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppStrings.bussPermit,
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium!
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+              Card(
+                child: Image.network(
+                    fit: BoxFit.contain,
+                    value.establishment!.legals!['bussPermit']),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                AppStrings.sanitPerm,
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium!
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+              Card(
+                child: Image.network(
+                    fit: BoxFit.contain,
+                    value.establishment!.legals!['sanitPerm']),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                AppStrings.dotCert,
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium!
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+              Card(
+                child: Image.network(
+                    fit: BoxFit.contain,
+                    value.establishment!.legals!['dotCert']),
+              ),
+            ],
+          )
+        : Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      AppStrings.bussPermit,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      AppStrings.sanitPerm,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      AppStrings.dotCert,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      child: Image.network(
+                          fit: BoxFit.contain,
+                          value.establishment!.legals!['bussPermit']),
+                    ),
+                  ),
+                  Expanded(
+                    child: Card(
+                      child: Image.network(
+                          fit: BoxFit.contain,
+                          value.establishment!.legals!['sanitPerm']),
+                    ),
+                  ),
+                  Expanded(
+                    child: Card(
+                      child: Image.network(
+                          fit: BoxFit.contain,
+                          value.establishment!.legals!['dotCert']),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<EstablishmentProvider>(
+    return Consumer<PartnerAcctProvider>(
       builder: (context, value, child) => SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -1148,29 +586,30 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+
                   // Partner info widget
                   _buildPartnerInfo(value, isMobile),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 20),
 
                   isMobile
                       ? Column(
                           children: [
                             _buildContactInfo(value),
                             const SizedBox(height: 14),
-                            _buildLocationInfo(value)
+                            _buildLocationInfo(value),
+                            const SizedBox(height: 14),
                           ],
                         )
                       : Row(
                           children: [
                             Expanded(child: _buildContactInfo(value)),
                             const SizedBox(width: 10),
-                            Expanded(child: _buildLocationInfo(value))
+                            Expanded(child: _buildLocationInfo(value)),
+                            const SizedBox(width: 10),
                           ],
-                        )
-
-                  // _buildContactInfo(value, isMobile),
-                  // Location details
+                        ),
+                  const SizedBox(height: 20),
+                  _buildLegalities(value, isMobile)
                 ],
               );
             },

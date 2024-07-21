@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cat_tourism_hub/models/partner.dart';
@@ -17,8 +18,10 @@ class PartnersProvider extends ChangeNotifier {
   Future<void> fetchPartners() async {
     _isLoading = true;
 
+    final url = Uri.parse(AppStrings.baseApiUrl);
+
     try {
-      final response = await http.get(Uri.parse('${AppStrings.baseApiUrl}/'));
+      final response = await http.get(url).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         List jsonResponse = json.decode(response.body);
@@ -27,6 +30,10 @@ class PartnersProvider extends ChangeNotifier {
       } else {
         _error = 'Failed to load partners';
       }
+    } on TimeoutException catch (_) {
+      _isLoading = false;
+      _error = 'Request timed out. Please check your internet connection.';
+      notifyListeners();
     } catch (e) {
       _error = e.toString();
     } finally {

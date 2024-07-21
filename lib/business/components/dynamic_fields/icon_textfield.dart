@@ -23,7 +23,6 @@ class IconField extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        const SizedBox(height: 5),
         Card(
           elevation: 2,
           child: IconButton(

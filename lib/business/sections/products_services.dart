@@ -35,7 +35,6 @@ class _ProductsServicesState extends State<ProductsServices> {
         Provider.of<AuthenticationProvider>(context, listen: false);
     final productProv = Provider.of<ProductProvider>(context, listen: false);
     uid = provider.user!.uid;
-    // productProv.migrateServices();
     productProv.fetchProducts(uid);
   }
 
