@@ -1,4 +1,4 @@
-import 'package:cat_tourism_hub/dot/components.dart/drawer.dart';
+import 'package:cat_tourism_hub/dot/components/drawer.dart';
 import 'package:flutter/material.dart';
 
 class DotDashboard extends StatefulWidget {

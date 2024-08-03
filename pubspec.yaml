@@ -10,6 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  gap:
+  cached_network_image: ^3.4.0
   provider:
   http:
   flutter_svg:
@@ -23,6 +27,7 @@ dependencies:
   cloud_firestore:
   firebase_storage:
   firebase_ui_auth:
+  firebase_crashlytics:
   sidebarx:
   dotted_border:
   go_router:

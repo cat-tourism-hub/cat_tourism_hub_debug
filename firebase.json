@@ -1,1 +1,23 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"tourism-hub","appId":"1:70758533530:android:24f765d43cb78c3fc05223","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"tourism-hub","configurations":{"android":"1:70758533530:android:24f765d43cb78c3fc05223","ios":"1:70758533530:ios:291627c2d516d000c05223","web":"1:70758533530:web:be9b0e8b03602015c05223"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "tourism-hub",
+          "appId": "1:70758533530:android:24f765d43cb78c3fc05223",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "tourism-hub",
+          "configurations": {
+            "android": "1:70758533530:android:24f765d43cb78c3fc05223",
+            "ios": "1:70758533530:ios:291627c2d516d000c05223",
+            "web": "1:70758533530:web:be9b0e8b03602015c05223"
+          }
+        }
+      }
+    }
+  }
+}
