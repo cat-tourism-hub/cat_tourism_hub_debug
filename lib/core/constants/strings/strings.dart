@@ -1,13 +1,10 @@
-import 'package:flutter/foundation.dart';
-
 String appName = 'Catanduanes Tourism Hub';
 
 class AppStrings {
   const AppStrings._();
   // Use https://cat-tourism-hub-api.onrender.com on server
   // Use http://127.0.0.1:5000 on local
-  static const String baseApiUrl =
-      kIsWeb ? 'http://127.0.0.1:5000' : 'http://10.0.2.2:5000';
+  static const String baseApiUrl = 'https://cat-tourism-hub-api.onrender.com';
   static const String municipalitUrl =
       'https://psgc.gitlab.io/api/provinces/052000000/municipalities/';
   static const String homepage = 'Homepage';
@@ -80,6 +77,7 @@ class AppStrings {
   static const String fetching = 'Fetching establishment details...';
   static const String save = 'Save';
   static const String edit = 'Edit';
+  static const String add = 'Add';
   static const String addField = 'Add field';
 
   static const String clickToAddPhoto = 'Click here to add image.';
@@ -94,8 +92,8 @@ class AppStrings {
   static const String included =
       'Included in the price (separate by comma) (Optional)';
   static const String noProducts = 'No products/services available.';
-  static const String addOtherServices = 'Add services/add-ons';
-  static const String addOnsServices = 'Add-ons/services';
+  static const String addOtherServices = 'Add add-ons';
+  static const String addOnsServices = 'Add-ons';
 
   static const String businessAccount = 'Business Account';
   static const String createYourAccount = 'Create your account';

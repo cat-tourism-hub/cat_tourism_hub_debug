@@ -1,11 +1,13 @@
+import 'package:cat_tourism_hub/business/data/product.dart';
+import 'package:cat_tourism_hub/core/utils/path_to_image_convert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class BusinessDataCard extends StatelessWidget {
-  const BusinessDataCard({super.key, this.onTap, this.data});
+  const BusinessDataCard({super.key, this.onTap, required this.data});
 
   final void Function()? onTap;
-  final dynamic data;
+  final Product data;
 
   @override
   Widget build(BuildContext context) {
@@ -28,31 +30,30 @@ class BusinessDataCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  data.photos?.length > 0
+                  data.photos!.isNotEmpty
                       ? SizedBox(
                           height: constraints.maxHeight * 0.45,
                           width: cardWidth,
-                          child: Image.network(
-                            data.photos?.first ?? '',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Center(
-                                child: Text('Failed to load image'),
-                              );
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  backgroundColor: Colors.blue,
-                                  color: Colors.blue,
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
+                          child: FutureBuilder(
+                            future: getDownloadUrl(data.photos![0]),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return Image.network(
+                                  snapshot.data!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Center(
+                                          child: Icon(Icons
+                                              .broken_image)), // Error placeholder
+                                );
+                              } else if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else {
+                                return const Center(
+                                    child: Text('No Image')); // Placeholder
+                              }
                             },
                           ),
                         )
@@ -79,9 +80,11 @@ class BusinessDataCard extends StatelessWidget {
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 12),
-                        if (data.desc.isNotEmpty && constraints.maxHeight > 250)
+                        if (data.desc != null &&
+                            data.desc!.isNotEmpty &&
+                            constraints.maxHeight < 250)
                           Text(
-                            data.desc,
+                            data.desc ?? '',
                             overflow: TextOverflow.ellipsis,
                             maxLines: constraints.maxHeight < 344
                                 ? 1

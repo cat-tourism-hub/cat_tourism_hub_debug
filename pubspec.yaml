@@ -16,6 +16,7 @@ dependencies:
   cached_network_image: ^3.4.0
   provider:
   http:
+  intl:
   flutter_svg:
   image_picker:
   image_picker_for_web:

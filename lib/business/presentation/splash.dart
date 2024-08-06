@@ -3,6 +3,7 @@ import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
 import 'package:cat_tourism_hub/business/providers/partner_acct_provider.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -39,9 +40,10 @@ class _BusinessDashboardState extends State<BusinessDashboard> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(AppStrings.fetching),
-                        LoadingAnimationWidget.prograssiveDots(
-                          color: Colors.black,
-                          size: 50,
+                        const Gap(10),
+                        LoadingAnimationWidget.inkDrop(
+                          color: Theme.of(context).indicatorColor,
+                          size: 30,
                         ),
                       ],
                     )

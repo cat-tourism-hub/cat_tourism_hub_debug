@@ -49,9 +49,16 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  Future uploadNewProduct(String token, String uid, Establishment establishment,
-      Product product) async {
-    var uri = Uri.parse('${AppStrings.baseApiUrl}/business/$uid/services/add');
+  Future addEditProduct(String action, String? itemId, String token, String uid,
+      Establishment establishment, Product product) async {
+    Uri? uri;
+    if (action == AppStrings.add) {
+      uri = Uri.parse('${AppStrings.baseApiUrl}/business/$uid/services/add');
+    } else {
+      uri = Uri.parse(
+          '${AppStrings.baseApiUrl}/business/$uid/services/edit/$itemId');
+    }
+
     try {
       var headers = {
         'Content-Type': 'application/json',
@@ -65,7 +72,7 @@ class ProductProvider with ChangeNotifier {
           .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 201) {
-        return 'Product/Service added successfully';
+        return 'Product/Service $action successful.';
       } else {
         final Map<String, dynamic> responseBody = json.decode(response.body);
         final String errorMessage = responseBody['Error'] ?? 'Unknown error';
@@ -75,6 +82,7 @@ class ProductProvider with ChangeNotifier {
     } on TimeoutException catch (_) {
       _error = 'Timeout error. Please check internet connection.';
     } finally {
+      fetchProducts(uid);
       notifyListeners();
     }
   }

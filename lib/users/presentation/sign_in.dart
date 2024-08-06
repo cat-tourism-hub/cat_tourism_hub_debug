@@ -97,7 +97,7 @@ class _SignInState extends State<SignIn> {
       }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to sign in: $errorMessage')),
+        SnackBar(content: Text(errorMessage)),
       );
     } finally {
       setState(() {
@@ -240,7 +240,8 @@ class _SignInState extends State<SignIn> {
                                   builder: (_, isValid, __) {
                                     return _isLoading
                                         ? LoadingAnimationWidget.discreteCircle(
-                                            color: Colors.blue,
+                                            color: Theme.of(context)
+                                                .indicatorColor,
                                             size: 40,
                                           )
                                         : FilledButton(

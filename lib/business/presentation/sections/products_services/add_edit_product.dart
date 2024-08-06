@@ -5,18 +5,27 @@ import 'package:cat_tourism_hub/business/data/product.dart';
 import 'package:cat_tourism_hub/business/providers/partner_acct_provider.dart';
 import 'package:cat_tourism_hub/business/providers/product_provider.dart';
 import 'package:cat_tourism_hub/core/utils/image_picker.dart';
+import 'package:cat_tourism_hub/core/utils/path_to_image_convert.dart';
 import 'package:cat_tourism_hub/core/utils/snackbar_helper.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:simple_chips_input/simple_chips_input.dart';
 import '../../../../core/constants/strings/strings.dart';
 
 class AddProduct extends StatefulWidget {
-  const AddProduct({super.key, required this.toggleAdd});
-  final VoidCallback toggleAdd;
+  const AddProduct(
+      {super.key,
+      required this.toggleReturn,
+      this.product,
+      required this.action});
+  final String action;
+  final VoidCallback toggleReturn;
+  final Product? product;
   @override
   State<AddProduct> createState() => _AddProductState();
 }
@@ -29,13 +38,16 @@ class _AddProductState extends State<AddProduct> {
   final TextEditingController _categoryController = TextEditingController();
   final TextEditingController _desController = TextEditingController();
   final Map<String, TextEditingController> _controllers = {};
+  final List<Map<String, String>> _otherServices = [];
   final TextEditingController _chipInputController = TextEditingController();
   List<Photo> _imageFiles = [];
-  final List _included = [];
-  final List<Map<String, String>> _otherServices = [];
-  String amount = '';
+  List _included = [];
+
+  double amount = 0;
   String duration = '';
   bool _isLoading = false;
+  bool _isImageLoading = false;
+  bool _isDisposed = false;
 
   void disposeControllers() {
     _nameController.dispose();
@@ -44,18 +56,18 @@ class _AddProductState extends State<AddProduct> {
     _controllers.forEach((key, value) => value.dispose());
   }
 
-  /// Function to handle getting multiple images
-  /// calls utils/image_picker.dart/pickMultipleImages
+  /// Function to handle getting multiple photos
+  /// calls utils/image_picker.dart/pickMultiplephotos
   void _getImageFiles() async {
     final ImagePicker picker = ImagePicker();
-    List<Photo> images = await pickMultipleImages(picker);
+    List<Photo> photos = await pickMultipleImages(picker);
     setState(() {
-      _imageFiles = images;
+      _imageFiles = photos;
     });
   }
 
   // Value handler for price and duration widgets.
-  void _onCustomFieldChanged(String newAmount, String? newDuration) {
+  void _onCustomFieldChanged(double newAmount, String? newDuration) {
     setState(() {
       amount = newAmount;
       duration = newDuration ?? '';
@@ -64,6 +76,7 @@ class _AddProductState extends State<AddProduct> {
 
   @override
   void dispose() {
+    _isDisposed = true;
     disposeControllers();
     super.dispose();
   }
@@ -77,75 +90,101 @@ class _AddProductState extends State<AddProduct> {
     final value1 = Provider.of<PartnerAcctProvider>(context, listen: false);
     final value3 = Provider.of<AuthenticationProvider>(context, listen: false);
     final value2 = Provider.of<ProductProvider>(context, listen: false);
+    final Map<String, String> otherServicesMap = {
+      for (var field in _otherServices)
+        _controllers['${field.keys.first}_name']?.text ?? '':
+            _controllers['${field.keys.first}_value']?.text ?? ''
+    };
+    List<Photo> photos = [];
+
+    for (var img in _imageFiles) {
+      photos.add(Photo(image: img.image, title: img.title));
+    }
+
     Product product = Product(
-      name: _nameController.text,
-      category: _categoryController.text,
-      price: double.tryParse(amount) ?? 0,
-      desc: _desController.text,
-      pricePer: duration,
-      photos: _imageFiles,
-      included: _included,
-      otherServices: {
-        for (var field in _otherServices)
-          _controllers['${field['key']}_name']?.text ?? '':
-              _controllers['${field['key']}_value']?.text ?? ''
-      },
-    );
+        name: _nameController.text,
+        category: _categoryController.text,
+        price: amount,
+        desc: _desController.text,
+        pricePer: duration,
+        photos: photos,
+        included: _included,
+        otherServices: otherServicesMap);
+    try {
+      String response = await value2.addEditProduct(
+          widget.action,
+          widget.product?.id,
+          value3.token ?? '',
+          value3.user?.uid ?? '',
+          value1.establishment!,
+          product);
 
-    String response = await value2.uploadNewProduct(
-        value3.token ?? '', value3.user!.uid, value1.establishment!, product);
-
-    SnackbarHelper.showSnackBar(response);
+      SnackbarHelper.showSnackBar(response);
+    } catch (e) {
+      FirebaseCrashlytics.instance.log('IDK Error in Add/Edit Product');
+    }
 
     setState(() {
       _isLoading = false;
+      if (widget.action == AppStrings.add) {
+        Navigator.pop(context);
+      }
     });
   }
 
   // Widget builder for [addons/services]
   List<Widget> _buildAdditionalInfo() {
-    return _otherServices.map(
-      (field) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: _controllers['${field['key']}_name'] =
-                      TextEditingController(),
-                  decoration: const InputDecoration(
-                      labelText: AppStrings.name, border: OutlineInputBorder()),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a custom field name';
-                    }
-                    return null;
-                  },
+    return _otherServices.map((field) {
+      String key = field.keys.first;
+      String value = field.values.first;
+
+      TextEditingController nameController = TextEditingController(text: key);
+      TextEditingController valueController =
+          TextEditingController(text: value);
+
+      _controllers['${key}_name'] = nameController;
+      _controllers['${key}_value'] = valueController;
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: AppStrings.name,
+                  border: OutlineInputBorder(),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a custom field name';
+                  }
+                  return null;
+                },
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextFormField(
-                  controller: _controllers['${field['key']}_value'] =
-                      TextEditingController(),
-                  decoration: const InputDecoration(
-                      labelText: AppStrings.price,
-                      border: OutlineInputBorder()),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a value';
-                    }
-                    return null;
-                  },
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextFormField(
+                controller: valueController,
+                decoration: const InputDecoration(
+                  labelText: AppStrings.price,
+                  border: OutlineInputBorder(),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a value';
+                  }
+                  return null;
+                },
               ),
-            ],
-          ),
-        );
-      },
-    ).toList();
+            ),
+          ],
+        ),
+      );
+    }).toList();
   }
 
   // Widget builder for [included in the price]
@@ -163,7 +202,7 @@ class _AddProductState extends State<AddProduct> {
       onChipAdded: (p0) {
         setState(() {
           _included.add(p0);
-          _chipInputController.clear(); // Clear the input field
+          _chipInputController.clear();
         });
       },
       chipTextStyle: const TextStyle(
@@ -194,6 +233,42 @@ class _AddProductState extends State<AddProduct> {
   @override
   void initState() {
     super.initState();
+    if (widget.product != null) {
+      _assignValues();
+      _loadphotos();
+    }
+  }
+
+  void _assignValues() async {
+    _isImageLoading = true;
+    _nameController.text = widget.product?.name ?? '';
+    _categoryController.text = widget.product?.category ?? '';
+    _desController.text = widget.product?.desc ?? '';
+    _included = widget.product?.included ?? [];
+    amount = widget.product!.price;
+    duration = widget.product!.pricePer;
+
+    widget.product?.otherServices?.forEach((key, value) {
+      _otherServices.add({key: value});
+    });
+
+    _chipInputController.text = _included.join(',');
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _loadphotos() async {
+    for (String image in widget.product?.photos ?? []) {
+      var img = await getImageData(await getDownloadUrl(image));
+      var title = image.split('/').last;
+      _imageFiles.add(Photo(image: img, title: title));
+    }
+
+    if (_isDisposed) return;
+    setState(() {
+      _isImageLoading = false;
+    });
   }
 
   @override
@@ -211,35 +286,44 @@ class _AddProductState extends State<AddProduct> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextButton.icon(
-                  onPressed: widget.toggleAdd,
+                  onPressed: widget.toggleReturn,
                   label: const Text(AppStrings.labelReturn),
                   icon: const Icon(Icons.arrow_back)),
               const Gap(32),
-              Text('Add Product/Services',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium!
-                      .copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                '${widget.action} Product/Services',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
               GestureDetector(
                 onTap: _getImageFiles,
                 child: SizedBox(
                   width: screenWidth,
                   height: screenHeight * 0.3,
-                  child: _imageFiles.isNotEmpty
+                  child: _isImageLoading || _imageFiles.isNotEmpty
                       ? Container(
                           decoration: BoxDecoration(
                               border: Border.all(color: Colors.black),
                               borderRadius: BorderRadius.circular(10)),
-                          child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _imageFiles.length,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Image.memory(_imageFiles[index].image!,
-                                      fit: BoxFit.fill),
-                                );
-                              }),
+                          child: _isImageLoading
+                              ? Center(
+                                  child: LoadingAnimationWidget.inkDrop(
+                                      color: Theme.of(context).indicatorColor,
+                                      size: 30),
+                                )
+                              : ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: _imageFiles.length,
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      margin: const EdgeInsets.all(10),
+                                      child: Image.memory(
+                                          _imageFiles[index].image!,
+                                          fit: BoxFit.fill),
+                                    );
+                                  }),
                         )
                       : DottedBorder(
                           borderType: BorderType.RRect,
@@ -289,7 +373,10 @@ class _AddProductState extends State<AddProduct> {
               const Gap(20),
 
               // Text Field for pricing
-              CustomTextFormField(onChanged: _onCustomFieldChanged),
+              CustomTextFormField(
+                  initialAmount: widget.product?.price.toString() ?? '',
+                  initialCustomDuration: widget.product?.pricePer ?? '',
+                  onChanged: _onCustomFieldChanged),
 
               const Gap(20),
 
@@ -338,7 +425,7 @@ class _AddProductState extends State<AddProduct> {
                   ),
                   onPressed: () {
                     setState(() {
-                      _otherServices.add({'key': UniqueKey().toString()});
+                      _otherServices.add({'': ''});
                     });
                   },
                   child: Text(AppStrings.addOtherServices,
@@ -349,8 +436,10 @@ class _AddProductState extends State<AddProduct> {
                 ),
               ),
               const Gap(20),
-              _isLoading
-                  ? const CircularProgressIndicator()
+              _isLoading || _isImageLoading
+                  ? Center(
+                      child: LoadingAnimationWidget.discreteCircle(
+                          color: Theme.of(context).indicatorColor, size: 30))
                   : SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(

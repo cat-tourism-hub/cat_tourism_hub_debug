@@ -171,7 +171,7 @@ class _HomePageState extends State<HomePage> {
                   width: screenWidth * 0.7,
                   child: value.isLoading && value.partners.isEmpty
                       ? LoadingAnimationWidget.inkDrop(
-                          color: Colors.blue, size: 50)
+                          color: Theme.of(context).indicatorColor, size: 50)
                       : Column(
                           children: searchQuery.isEmpty
                               ? _buildPartnerList(groupedPartners)
@@ -264,7 +264,7 @@ class _HomePageState extends State<HomePage> {
                         ? Align(
                             alignment: Alignment.center,
                             child: LoadingAnimationWidget.inkDrop(
-                              color: Colors.blue,
+                              color: Theme.of(context).indicatorColor,
                               size: 50,
                             ),
                           )

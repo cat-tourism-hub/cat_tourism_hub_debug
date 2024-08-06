@@ -20,12 +20,11 @@ Future<Uint8List?> getImageData(String imageUrl) async {
 Future<String> getDownloadUrl(String filePath) async {
   final FirebaseStorage storage = FirebaseStorage.instance;
   try {
-    String downloadURL = await storage
+    return await storage
         .ref(filePath)
         .getDownloadURL()
         .timeout(const Duration(seconds: 30));
-    return downloadURL;
   } catch (e) {
-    throw Exception('Failed to load image');
+    return 'Error loading image';
   }
 }

@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class Product {
   final String? id;
   final String name;
@@ -8,7 +6,6 @@ class Product {
   final double price;
   final List? photos;
   final List? included;
-
   final String pricePer;
   final Map<String, dynamic>? otherServices;
   final bool? availabilityStatus;
@@ -27,9 +24,10 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
+        id: json['id'],
         name: json['name'],
         category: json['category'],
-        desc: json['desc'],
+        desc: json['desc'] ?? '',
         price: json['price'].toDouble(),
         pricePer: json['pricePer'] ?? '',
         photos: json['photos'],
@@ -46,7 +44,7 @@ class Product {
       'price': price,
       'pricePer': pricePer,
       'included': included,
-      'photos': kIsWeb ? photos?.map((e) => e.toJson()).toList() : photos,
+      'photos': photos,
       'otherServices': otherServices
     };
   }

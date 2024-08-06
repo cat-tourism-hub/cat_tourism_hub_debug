@@ -1,10 +1,11 @@
 import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/products_services/components/card.dart';
-import 'package:cat_tourism_hub/business/presentation/sections/products_services/add_product.dart';
+import 'package:cat_tourism_hub/business/presentation/sections/products_services/add_edit_product.dart';
 import 'package:cat_tourism_hub/business/data/product.dart';
 import 'package:cat_tourism_hub/business/providers/product_provider.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -15,12 +16,15 @@ class ProductsServices extends StatefulWidget {
   State<ProductsServices> createState() => _ProductsServicesState();
 }
 
-class _ProductsServicesState extends State<ProductsServices> {
+class _ProductsServicesState extends State<ProductsServices>
+    with AutomaticKeepAliveClientMixin {
   bool _isShowProduct = false;
   Product? productItem;
   late String token;
   late String uid;
   String searchQuery = '';
+  @override
+  bool get wantKeepAlive => true;
 
   void toggleViewProduct() {
     setState(() {
@@ -112,9 +116,10 @@ class _ProductsServicesState extends State<ProductsServices> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(AppStrings.fetchingData),
-            LoadingAnimationWidget.waveDots(
-              color: Colors.black,
-              size: 50,
+            const Gap(10),
+            LoadingAnimationWidget.inkDrop(
+              color: Theme.of(context).indicatorColor,
+              size: 40,
             ),
           ],
         ));
@@ -140,6 +145,7 @@ class _ProductsServicesState extends State<ProductsServices> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     double screenWidth = MediaQuery.sizeOf(context).width;
     Map<String, List<Product>> filteredProducts = {};
 
@@ -156,60 +162,72 @@ class _ProductsServicesState extends State<ProductsServices> {
               .toList();
         });
 
-        return Stack(
-          children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.only(top: 50),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+        return _isShowProduct
+            ? AddProduct(
+                action: AppStrings.edit,
+                product: productItem!,
+                toggleReturn: toggleViewProduct,
+              )
+            : Stack(
                 children: [
-                  if (value.isFetching && value.products.isEmpty)
-                    _showLoadingAnim(screenWidth),
-
-                  // Show the products list
-                  SizedBox(
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.only(top: 50),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: searchQuery.isEmpty
-                          ? _buildProductsList(groupedProducts)
-                          : _buildProductsList(filteredProducts),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (value.isFetching && value.products.isEmpty)
+                          _showLoadingAnim(screenWidth),
+
+                        if (value.products.isEmpty)
+                          const Align(
+                              alignment: Alignment.center,
+                              child: Text('No item')),
+                        // Show the products list
+                        SizedBox(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: searchQuery.isEmpty
+                                ? _buildProductsList(groupedProducts)
+                                : _buildProductsList(filteredProducts),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
 
-            //Search bar
-            _searchBar(screenWidth),
+                  //Search bar
+                  _searchBar(screenWidth),
 
-            // FAB
-            Align(
-              alignment: Alignment.bottomRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return Dialog(child: AddProduct(
-                          toggleAdd: () {
-                            setState(() {
-                              Navigator.of(context).pop();
+                  // FAB
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return Dialog(
+                                  child: AddProduct(
+                                action: AppStrings.add,
+                                toggleReturn: () {
+                                  setState(() {
+                                    Navigator.of(context).pop();
+                                  });
+                                },
+                              ));
                             });
-                          },
-                        ));
-                      });
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(20),
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.cyan,
-                ),
-                child: const Icon(Icons.add, color: Colors.white),
-              ),
-            )
-          ],
-        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        padding: const EdgeInsets.all(20),
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.cyan,
+                      ),
+                      child: const Icon(Icons.add, color: Colors.white),
+                    ),
+                  )
+                ],
+              );
       },
     );
   }
