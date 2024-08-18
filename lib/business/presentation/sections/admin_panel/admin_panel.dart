@@ -1,4 +1,4 @@
-import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/components/partner_details/partner_details.dart';
+import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/components/partner_details/partner_info.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/policies.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/facilities_amenities.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/components/content_view.dart';
@@ -22,7 +22,7 @@ class _AdminPanelState extends State<AdminPanel>
   List<ContentView> contentViews = [
     ContentView(
         tab: const CustomTab(title: AppStrings.partnerDetails),
-        content: const PartnerDetails()),
+        content: const PartnerInfo()),
     ContentView(
         tab: const CustomTab(title: AppStrings.facilitiesAndAmenities),
         content: const ServicesAndAmenities()),

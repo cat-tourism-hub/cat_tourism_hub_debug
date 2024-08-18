@@ -75,6 +75,8 @@ class _ProductsServicesState extends State<ProductsServices>
               LayoutBuilder(
                 builder: (context, constraints) {
                   return GridView.builder(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
                     shrinkWrap: true,
                     padding: const EdgeInsets.symmetric(horizontal: 30),
                     itemCount: productListByCategory.length,

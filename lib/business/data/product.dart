@@ -9,6 +9,7 @@ class Product {
   final String pricePer;
   final Map<String, dynamic>? otherServices;
   final bool? availabilityStatus;
+  final String? partnerId;
 
   Product(
       {this.id,
@@ -20,7 +21,8 @@ class Product {
       this.included,
       this.availabilityStatus,
       required this.pricePer,
-      this.otherServices});
+      this.otherServices,
+      this.partnerId});
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(

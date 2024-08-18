@@ -8,14 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 
-class PartnerDetails extends StatefulWidget {
-  const PartnerDetails({super.key});
+class PartnerInfo extends StatefulWidget {
+  const PartnerInfo({super.key});
 
   @override
-  State<PartnerDetails> createState() => _PartnerDetailsState();
+  State<PartnerInfo> createState() => _PartnerInfoState();
 }
 
-class _PartnerDetailsState extends State<PartnerDetails> {
+class _PartnerInfoState extends State<PartnerInfo> {
   bool isEditMode = false;
   late Map<String, TextEditingController> controllers;
   late Map<String, String> initialValues;

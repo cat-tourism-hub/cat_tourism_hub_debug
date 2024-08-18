@@ -385,7 +385,8 @@ class _ServicesAndAmenitiesState extends State<ServicesAndAmenities> {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(
-          child: LoadingAnimationWidget.waveDots(color: Colors.black, size: 50),
+          child: LoadingAnimationWidget.inkDrop(
+              color: Theme.of(context).indicatorColor, size: 40),
         ),
       );
     }
@@ -599,8 +600,7 @@ class ImageFieldWidget extends StatelessWidget {
                           if (loadingProgress == null) return child;
                           return Center(
                             child: CircularProgressIndicator(
-                              backgroundColor: Colors.blue,
-                              color: Colors.blue,
+                              color: Theme.of(context).indicatorColor,
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
                                       loadingProgress.expectedTotalBytes!

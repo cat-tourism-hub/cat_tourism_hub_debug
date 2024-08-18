@@ -77,13 +77,20 @@ class _HomePageState extends State<HomePage> {
               SizedBox(
                 height: 300,
                 child: ListView.builder(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   scrollDirection: Axis.horizontal,
                   itemCount: partners.length,
                   itemBuilder: (context, index) {
                     var partner = partners[index];
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: PartnerCard(data: partner),
+                      child: PartnerCard(
+                        data: partner,
+                        onTap: () {
+                          context.go('/${partner.name}', extra: partner);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -97,7 +104,7 @@ class _HomePageState extends State<HomePage> {
     return partnerList;
   }
 
-  Widget desktopView(PartnersProvider value) {
+  Widget _desktopView(PartnersProvider value) {
     Map<String, List<Partner>> groupedPartners =
         _groupPartnersByType(value.partners);
 
@@ -112,12 +119,15 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppStrings.appName,
-            style: Theme.of(context).textTheme.headlineLarge!),
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium!
+                .copyWith(fontWeight: FontWeight.bold)),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 40),
             child: TextButton(
-              onPressed: () => context.push('/sign-in'),
+              onPressed: () => context.go('/sign-in'),
               child: Text(
                 AppStrings.loginRegister,
                 style: Theme.of(context).textTheme.labelMedium,
@@ -165,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                 if (value.error.isNotEmpty &&
                     !value.isLoading &&
                     value.partners.isEmpty)
-                  errorMsg(value),
+                  _errorMsg(value),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   width: screenWidth * 0.7,
@@ -187,7 +197,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Error message when fetching timed out.
-  Widget errorMsg(PartnersProvider value) {
+  Widget _errorMsg(PartnersProvider value) {
     return Center(
       child: Column(
         children: [
@@ -207,7 +217,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget mobileView(PartnersProvider value) {
+  Widget _mobileView(PartnersProvider value) {
     Map<String, List<Partner>> groupedPartners =
         _groupPartnersByType(value.partners);
 
@@ -254,7 +264,7 @@ class _HomePageState extends State<HomePage> {
             if (value.error.isNotEmpty &&
                 !value.isLoading &&
                 value.partners.isEmpty)
-              errorMsg(value),
+              _errorMsg(value),
             Expanded(
               child: SingleChildScrollView(
                 child: Center(
@@ -287,17 +297,17 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.sizeOf(context).height;
     screenWidth = MediaQuery.sizeOf(context).width;
-    return Scaffold(body: Consumer<PartnersProvider>(
+    return Consumer<PartnersProvider>(
       builder: (BuildContext context, PartnersProvider value, Widget? child) {
         return LayoutBuilder(
           builder: (context, constraints) {
             if (screenWidth < 1000) {
-              return mobileView(value);
+              return _mobileView(value);
             }
-            return desktopView(value);
+            return _desktopView(value);
           },
         );
       },
-    ));
+    );
   }
 }

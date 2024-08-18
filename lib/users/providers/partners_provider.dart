@@ -32,7 +32,7 @@ class PartnersProvider extends ChangeNotifier {
       }
     } on TimeoutException catch (_) {
       _isLoading = false;
-      _error = '${AppStrings.error1} Please check your internet connection.';
+      _error = '${AppStrings.error1}\n Please check your internet connection.';
       notifyListeners();
     } catch (e) {
       _error = e.toString();

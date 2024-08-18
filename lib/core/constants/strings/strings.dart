@@ -1,10 +1,13 @@
+import 'package:flutter/foundation.dart';
+
 String appName = 'Catanduanes Tourism Hub';
 
 class AppStrings {
   const AppStrings._();
   // Use https://cat-tourism-hub-api.onrender.com on server
   // Use http://127.0.0.1:5000 on local
-  static const String baseApiUrl = 'https://cat-tourism-hub-api.onrender.com';
+  static const String baseApiUrl =
+      kIsWeb ? 'http://127.0.0.1:5000' : 'http://10.0.0.2:5000';
   static const String municipalitUrl =
       'https://psgc.gitlab.io/api/provinces/052000000/municipalities/';
   static const String homepage = 'Homepage';

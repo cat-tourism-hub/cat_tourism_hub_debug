@@ -298,7 +298,7 @@ class _AddProductState extends State<AddProduct> {
                     .copyWith(fontWeight: FontWeight.bold),
               ),
               GestureDetector(
-                onTap: _getImageFiles,
+                onTap: _isImageLoading ? null : _getImageFiles,
                 child: SizedBox(
                   width: screenWidth,
                   height: screenHeight * 0.3,

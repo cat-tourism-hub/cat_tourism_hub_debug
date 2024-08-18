@@ -1,22 +1,20 @@
-class Partner {
-  final String? name;
-  final String? about;
-  final String? type;
-  final String? logo;
-  final String? banner;
+import 'package:cat_tourism_hub/business/data/establishment.dart';
+
+class Partner extends Establishment {
   final double? lowestPrice;
-  final Map? location;
-  final Map? contact;
 
   Partner({
-    this.name,
-    this.about,
-    this.type,
-    this.logo,
-    this.banner,
+    super.id,
+    super.name,
+    super.about,
+    super.type,
+    super.logo,
+    super.banner,
     this.lowestPrice,
-    this.location,
-    this.contact,
+    super.location,
+    super.contact,
+    super.amenities,
+    super.facilities,
   });
 
   factory Partner.fromJson(Map<String, dynamic> json) {
@@ -30,6 +28,7 @@ class Partner {
       contact: json['contact'],
     );
   }
+  @override
   Map<String, dynamic> toJson() {
     return {
       'name': name,

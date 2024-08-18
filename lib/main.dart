@@ -1,4 +1,6 @@
 import 'package:cat_tourism_hub/core/constants/theme/values/app_theme.dart';
+import 'package:cat_tourism_hub/users/models/partner.dart';
+import 'package:cat_tourism_hub/users/presentation/partner_details.dart';
 import 'package:cat_tourism_hub/users/presentation/sign_in.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/admin_panel.dart';
 import 'package:cat_tourism_hub/business/presentation/sign_up.dart';
@@ -48,32 +50,27 @@ class MyApp extends StatelessWidget {
       final user = authProvider.user;
       final String? userRole = authProvider.role;
 
-      // if (state.matchedLocation == '/sign-in' ||
-      //     state.matchedLocation == '/business/sign-up') {
-      //   return state.matchedLocation;
-      // }
-
-      // if (user != null) {
-      //   if (userRole == AppStrings.businessAccount) {
-      //     return '/business';
-      //   }
-      //   // else if (userRole == 'DOT')
-      // } else {
-      //   return '/sign-in';
-      // }
-
-      // return '/';
-      if (user == null && state.matchedLocation == '/sign-in') {
+      if (user == null && state.matchedLocation == '/business') {
         return '/sign-in';
       }
-      if (user == null && state.matchedLocation == '/business/sign-up') {
-        return '/business/sign-up';
+      if (user != null && state.matchedLocation == '/business') {
+        if (userRole == AppStrings.businessAccount) {
+          return '/business';
+        }
       }
-      // Role-based redirects
-      if (user != null && userRole == AppStrings.businessAccount) {
-        return '/business';
-      }
-      return '/';
+
+      // return '/';
+      // if (user == null && state.matchedLocation == '/sign-in') {
+      //   return '/sign-in';
+      // }
+      // if (user == null && state.matchedLocation == '/business/sign-up') {
+      //   return '/business/sign-up';
+      // }
+      // // Role-based redirects
+      // if (user != null && userRole == AppStrings.businessAccount) {
+      //   return '/business';
+      // }
+      return state.matchedLocation;
     },
     routes: [
       GoRoute(
@@ -101,6 +98,14 @@ class MyApp extends StatelessWidget {
         name: 'business-sign-up',
         builder: (context, state) => const SignUp(),
       ),
+      GoRoute(
+          path: '/:id',
+          builder: (context, state) {
+            final partner = state.extra;
+            return PartnerDetails(
+              partner: partner as Partner,
+            );
+          }),
     ],
   );
 

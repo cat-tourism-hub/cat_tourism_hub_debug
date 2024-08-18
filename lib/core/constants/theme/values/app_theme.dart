@@ -20,7 +20,7 @@ class AppTheme {
         headlineSmall: TextStyle(
             fontFamily: 'Montserrat',
             fontSize: 16,
-            fontWeight: FontWeight.w600),
+            fontWeight: FontWeight.bold),
         labelLarge: TextStyle(
             fontFamily: 'Poppins', fontSize: 18, fontWeight: FontWeight.bold),
         labelMedium: TextStyle(
