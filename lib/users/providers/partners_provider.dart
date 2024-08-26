@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cat_tourism_hub/users/models/partner.dart';
+import 'package:cat_tourism_hub/business/data/establishment.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class PartnersProvider extends ChangeNotifier {
-  List<Partner> _partners = [];
+  List<Establishment> _partners = [];
   bool _isLoading = false;
   String _error = '';
 
-  List<Partner> get partners => _partners;
+  List<Establishment> get partners => _partners;
   bool get isLoading => _isLoading;
   String get error => _error;
 
@@ -25,8 +25,9 @@ class PartnersProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         List jsonResponse = json.decode(response.body);
-        _partners =
-            jsonResponse.map((partner) => Partner.fromJson(partner)).toList();
+        _partners = jsonResponse
+            .map((partner) => Establishment.fromJson(partner))
+            .toList();
       } else {
         _error = 'Failed to load partners';
       }

@@ -1,4 +1,4 @@
-import 'package:cat_tourism_hub/users/models/partner.dart';
+import 'package:cat_tourism_hub/business/data/establishment.dart';
 import 'package:cat_tourism_hub/users/providers/partners_provider.dart';
 import 'package:cat_tourism_hub/users/presentation/components/drawer.dart';
 import 'package:cat_tourism_hub/users/presentation/components/partner_card.dart';
@@ -43,8 +43,9 @@ class _HomePageState extends State<HomePage> {
   /// Returns:
   ///   The function `_groupPartnersByType` returns a `Map` where the keys are `String` representing the
   /// type of partners, and the values are `List<Partner>` containing the partners grouped by their type.
-  Map<String, List<Partner>> _groupPartnersByType(List<Partner> partners) {
-    Map<String, List<Partner>> groupedPartners = {};
+  Map<String, List<Establishment>> _groupPartnersByType(
+      List<Establishment> partners) {
+    Map<String, List<Establishment>> groupedPartners = {};
 
     for (var partner in partners) {
       if (!groupedPartners.containsKey(partner.type)) {
@@ -55,7 +56,7 @@ class _HomePageState extends State<HomePage> {
     return groupedPartners;
   }
 
-  List<Widget> _buildPartnerList(Map<String, List<Partner>> partnersMap) {
+  List<Widget> _buildPartnerList(Map<String, List<Establishment>> partnersMap) {
     List<Widget> partnerList = [];
     partnersMap.forEach((type, partners) {
       if (searchQuery.isEmpty || partners.isNotEmpty) {
@@ -105,13 +106,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _desktopView(PartnersProvider value) {
-    Map<String, List<Partner>> groupedPartners =
+    Map<String, List<Establishment>> groupedPartners =
         _groupPartnersByType(value.partners);
 
-    Map<String, List<Partner>> filteredPartners = {};
+    Map<String, List<Establishment>> filteredPartners = {};
     groupedPartners.forEach((type, partners) {
       filteredPartners[type] = partners
-          .where((Partner partner) =>
+          .where((Establishment partner) =>
               partner.name!.toLowerCase().contains(searchQuery.toLowerCase()))
           .toList();
     });
@@ -218,13 +219,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _mobileView(PartnersProvider value) {
-    Map<String, List<Partner>> groupedPartners =
+    Map<String, List<Establishment>> groupedPartners =
         _groupPartnersByType(value.partners);
 
-    Map<String, List<Partner>> filteredPartners = {};
+    Map<String, List<Establishment>> filteredPartners = {};
     groupedPartners.forEach((type, partners) {
       filteredPartners[type] = partners
-          .where((Partner partner) =>
+          .where((Establishment partner) =>
               partner.name!.toLowerCase().contains(searchQuery.toLowerCase()))
           .toList();
     });

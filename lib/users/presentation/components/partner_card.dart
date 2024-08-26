@@ -1,4 +1,4 @@
-import 'package:cat_tourism_hub/users/models/partner.dart';
+import 'package:cat_tourism_hub/business/data/establishment.dart';
 import 'package:cat_tourism_hub/core/utils/path_to_image_convert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -7,7 +7,7 @@ class PartnerCard extends StatelessWidget {
   const PartnerCard({super.key, this.onTap, required this.data});
 
   final void Function()? onTap;
-  final Partner data;
+  final Establishment data;
 
   @override
   Widget build(BuildContext context) {
@@ -155,11 +155,11 @@ class PartnerCard extends StatelessWidget {
                           height: 20,
                           width: 20,
                         ),
-                        Text('${data.lowestPrice ?? 1299} ',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .copyWith(fontSize: 28)),
+                        // Text('${data.lowestPrice ?? 1299} ',
+                        //     style: Theme.of(context)
+                        //         .textTheme
+                        //         .bodyLarge!
+                        //         .copyWith(fontSize: 28)),
                       ],
                     ),
                   ),

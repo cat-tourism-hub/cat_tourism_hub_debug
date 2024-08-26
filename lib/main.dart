@@ -1,5 +1,5 @@
+import 'package:cat_tourism_hub/business/data/establishment.dart';
 import 'package:cat_tourism_hub/core/constants/theme/values/app_theme.dart';
-import 'package:cat_tourism_hub/users/models/partner.dart';
 import 'package:cat_tourism_hub/users/presentation/partner_details.dart';
 import 'package:cat_tourism_hub/users/presentation/sign_in.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/admin_panel.dart';
@@ -49,6 +49,8 @@ class MyApp extends StatelessWidget {
           Provider.of<AuthenticationProvider>(context, listen: false);
       final user = authProvider.user;
       final String? userRole = authProvider.role;
+
+      print(state.matchedLocation);
 
       if (user == null && state.matchedLocation == '/business') {
         return '/sign-in';
@@ -103,7 +105,7 @@ class MyApp extends StatelessWidget {
           builder: (context, state) {
             final partner = state.extra;
             return PartnerDetails(
-              partner: partner as Partner,
+              partner: partner as Establishment,
             );
           }),
     ],

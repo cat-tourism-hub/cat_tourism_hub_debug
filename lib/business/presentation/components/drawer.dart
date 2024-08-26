@@ -144,7 +144,7 @@ class BusinessDrawer extends StatelessWidget {
                     child: FilledButton(
                       onPressed: () {
                         AuthenticationProvider().signOut();
-                        context.go('/homepage');
+                        context.go('/');
                       },
                       child: const Text('Logout'),
                     ),
