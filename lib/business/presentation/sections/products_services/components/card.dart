@@ -2,6 +2,7 @@ import 'package:cat_tourism_hub/business/data/product.dart';
 import 'package:cat_tourism_hub/core/utils/path_to_image_convert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gap/gap.dart';
 
 class BusinessDataCard extends StatelessWidget {
   const BusinessDataCard({super.key, this.onTap, required this.data});
@@ -23,7 +24,8 @@ class BusinessDataCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             elevation: 5,
-            child: SizedBox(
+            child: Container(
+              padding: const EdgeInsets.all(16),
               width: cardWidth,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -79,7 +81,7 @@ class BusinessDataCard extends StatelessWidget {
                               .labelLarge!
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 12),
+                        const Gap(12),
                         if (data.desc != null &&
                             data.desc!.isNotEmpty &&
                             constraints.maxHeight < 250)
@@ -93,7 +95,7 @@ class BusinessDataCard extends StatelessWidget {
                                     : 2,
                             style: const TextStyle(fontSize: 14),
                           ),
-                        const SizedBox(height: 14),
+                        const Gap(14),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,11 +124,7 @@ class BusinessDataCard extends StatelessWidget {
                               ),
                           ],
                         ),
-                        const SizedBox(height: 14),
-                        Text(
-                          'Availability: ${data.availabilityStatus.toString()}',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
+                        const Gap(14),
                       ],
                     ),
                   ),

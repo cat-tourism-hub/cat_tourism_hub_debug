@@ -146,6 +146,7 @@ class _PartnerInfoState extends State<PartnerInfo> {
                       leading: const Icon(Icons.info_outline),
                       title: isEditMode
                           ? TextFormField(
+                              maxLines: 10,
                               controller: controllers['about'],
                               decoration: const InputDecoration(
                                 hintText: 'About',
@@ -231,6 +232,7 @@ class _PartnerInfoState extends State<PartnerInfo> {
               ),
               Row(
                 mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Card(
@@ -238,6 +240,7 @@ class _PartnerInfoState extends State<PartnerInfo> {
                         leading: const Icon(Icons.info_outline),
                         title: isEditMode
                             ? TextFormField(
+                                maxLines: 10,
                                 controller: controllers['about'],
                                 decoration: const InputDecoration(
                                   hintText: 'About',

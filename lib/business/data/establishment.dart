@@ -7,7 +7,6 @@ class Establishment {
   final String? logo;
   final String? banner;
   String? status;
-  final String? userUid;
   final Map? location;
   final Map? contact;
   final Map? legals;
@@ -23,7 +22,6 @@ class Establishment {
       this.logo,
       this.banner,
       this.status,
-      this.userUid,
       this.location,
       this.contact,
       this.legals,
@@ -32,6 +30,7 @@ class Establishment {
 
   factory Establishment.fromJson(Map<String, dynamic> json) {
     return Establishment(
+        id: json['id'],
         name: json['estb']['name'],
         about: json['estb']['about'],
         logo: json['logo'],

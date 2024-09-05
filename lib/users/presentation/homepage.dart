@@ -1,4 +1,6 @@
 import 'package:cat_tourism_hub/business/data/establishment.dart';
+import 'package:cat_tourism_hub/core/components/loading_widget.dart';
+import 'package:cat_tourism_hub/users/presentation/components/topbar.dart';
 import 'package:cat_tourism_hub/users/providers/partners_provider.dart';
 import 'package:cat_tourism_hub/users/presentation/components/drawer.dart';
 import 'package:cat_tourism_hub/users/presentation/components/partner_card.dart';
@@ -118,25 +120,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppStrings.appName,
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium!
-                .copyWith(fontWeight: FontWeight.bold)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 40),
-            child: TextButton(
-              onPressed: () => context.go('/sign-in'),
-              child: Text(
-                AppStrings.loginRegister,
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: const Topbar(),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -181,8 +165,7 @@ class _HomePageState extends State<HomePage> {
                   duration: const Duration(milliseconds: 200),
                   width: screenWidth * 0.7,
                   child: value.isLoading && value.partners.isEmpty
-                      ? LoadingAnimationWidget.inkDrop(
-                          color: Theme.of(context).indicatorColor, size: 50)
+                      ? LoadingWidget(screenWidth: screenWidth)
                       : Column(
                           children: searchQuery.isEmpty
                               ? _buildPartnerList(groupedPartners)

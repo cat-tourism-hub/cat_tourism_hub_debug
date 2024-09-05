@@ -14,16 +14,6 @@ class ProductProvider with ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  // void addHotel(HotelRoom hotel) {
-  //   rooms.add(hotel);
-  //   notifyListeners();
-  // }
-
-  // void removeHotel(String id) {
-  //   rooms.removeWhere((hotel) => hotel.id == id);
-  //   notifyListeners();
-  // }
-
   Future<void> fetchProducts(String uid) async {
     try {
       isFetching = true;
@@ -37,7 +27,6 @@ class ProductProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         products = data.map<Product>((item) => Product.fromJson(item)).toList();
-        notifyListeners();
       } else {
         throw Exception('Failed to load products');
       }

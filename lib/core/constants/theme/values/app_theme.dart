@@ -35,6 +35,17 @@ class AppTheme {
             fontFamily: 'Poppins',
             fontSize: 14,
             fontWeight: FontWeight.normal)),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.blue[900],
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Padding
+      ),
+    ),
     colorScheme: ColorScheme.fromSeed(
         seedColor: const Color.fromARGB(255, 58, 123, 183)),
     useMaterial3: true,

@@ -1,4 +1,5 @@
 import 'package:cat_tourism_hub/business/presentation/components/text_form_field.dart';
+import 'package:cat_tourism_hub/core/components/feature_unavailable.dart';
 import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
 import 'package:cat_tourism_hub/core/utils/app_constants.dart';
 import 'package:cat_tourism_hub/core/utils/app_regex.dart';
@@ -231,7 +232,13 @@ class _SignInState extends State<SignIn> {
                                   },
                                 ),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    // TODO: Develop the forgot password feature
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            const FeatureUnavailable());
+                                  },
                                   child: const Text(AppStrings.forgotPassword),
                                 ),
                                 const SizedBox(height: 20),
@@ -257,16 +264,11 @@ class _SignInState extends State<SignIn> {
                                 const SizedBox(height: 20),
                                 TextButton(
                                   onPressed: () async {
-                                    // context.pushNamed(
-                                    //   'createAccount',
-                                    //   extra: <String, dynamic>{
-                                    //     kTransitionInfoKey: TransitionInfo(
-                                    //       hasTransition: true,
-                                    //       transitionType:
-                                    //           PageTransitionType.fade,
-                                    //       duration:
-                                    //           const Duration(milliseconds: 0),
-                                    //     ),
+                                    // TODO: Develop the create account feature
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            const FeatureUnavailable());
                                   },
                                   child: const Text('Create Account'),
                                 ),

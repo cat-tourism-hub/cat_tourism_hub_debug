@@ -17,11 +17,11 @@ Future<Uint8List?> getImageData(String imageUrl) async {
 }
 
 /// Retrieves the download URL for a file stored in Firebase Storage.
-Future<String> getDownloadUrl(String filePath) async {
+Future<String> getDownloadUrl(String? filePath) async {
   final FirebaseStorage storage = FirebaseStorage.instance;
   try {
     return await storage
-        .ref(filePath)
+        .ref(filePath ?? '')
         .getDownloadURL()
         .timeout(const Duration(seconds: 30));
   } catch (e) {

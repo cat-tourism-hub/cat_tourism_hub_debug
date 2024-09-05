@@ -1,3 +1,4 @@
+import 'package:cat_tourism_hub/core/utils/app_regex.dart';
 import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/products_services/components/price_field.dart';
 import 'package:cat_tourism_hub/business/data/photo.dart';
@@ -21,11 +22,13 @@ class AddProduct extends StatefulWidget {
   const AddProduct(
       {super.key,
       required this.toggleReturn,
+      required this.categories,
       this.product,
       required this.action});
   final String action;
   final VoidCallback toggleReturn;
   final Product? product;
+  final List<String> categories;
   @override
   State<AddProduct> createState() => _AddProductState();
 }
@@ -35,24 +38,27 @@ class _AddProductState extends State<AddProduct> {
   final GlobalKey<SimpleChipsInputState> _chipsInputKey =
       GlobalKey<SimpleChipsInputState>();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _capacityOrServing = TextEditingController();
   final TextEditingController _desController = TextEditingController();
+  final TextEditingController _newCategoryController = TextEditingController();
   final Map<String, TextEditingController> _controllers = {};
   final List<Map<String, String>> _otherServices = [];
   final TextEditingController _chipInputController = TextEditingController();
   List<Photo> _imageFiles = [];
   List _included = [];
 
-  double amount = 0;
-  String duration = '';
+  double _amount = 0;
+  String _duration = '';
+  String? _selectedCategory;
   bool _isLoading = false;
   bool _isImageLoading = false;
   bool _isDisposed = false;
 
   void disposeControllers() {
     _nameController.dispose();
-    _categoryController.dispose();
     _desController.dispose();
+    _newCategoryController.dispose();
+    _capacityOrServing.dispose();
     _controllers.forEach((key, value) => value.dispose());
   }
 
@@ -67,10 +73,10 @@ class _AddProductState extends State<AddProduct> {
   }
 
   // Value handler for price and duration widgets.
-  void _onCustomFieldChanged(double newAmount, String? newDuration) {
+  void _onPriceFieldChanged(double newAmount, String? newDuration) {
     setState(() {
-      amount = newAmount;
-      duration = newDuration ?? '';
+      _amount = newAmount;
+      _duration = newDuration ?? '';
     });
   }
 
@@ -103,10 +109,11 @@ class _AddProductState extends State<AddProduct> {
 
     Product product = Product(
         name: _nameController.text,
-        category: _categoryController.text,
-        price: amount,
+        category: _selectedCategory ?? '',
+        price: _amount,
+        capacity: int.tryParse(_capacityOrServing.text) ?? 0,
         desc: _desController.text,
-        pricePer: duration,
+        pricePer: _duration,
         photos: photos,
         included: _included,
         otherServices: otherServicesMap);
@@ -242,11 +249,12 @@ class _AddProductState extends State<AddProduct> {
   void _assignValues() async {
     _isImageLoading = true;
     _nameController.text = widget.product?.name ?? '';
-    _categoryController.text = widget.product?.category ?? '';
+    _selectedCategory = widget.product?.category ?? '';
+    _capacityOrServing.text = widget.product?.capacity.toString() ?? '0';
     _desController.text = widget.product?.desc ?? '';
     _included = widget.product?.included ?? [];
-    amount = widget.product!.price;
-    duration = widget.product!.pricePer;
+    _amount = widget.product!.price;
+    _duration = widget.product!.pricePer;
 
     widget.product?.otherServices?.forEach((key, value) {
       _otherServices.add({key: value});
@@ -269,6 +277,35 @@ class _AddProductState extends State<AddProduct> {
     setState(() {
       _isImageLoading = false;
     });
+  }
+
+  Future<String?> _showAddCategoryDialog(BuildContext context) async {
+    return showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Add new category'),
+          content: TextField(
+            controller: _newCategoryController,
+            decoration: const InputDecoration(hintText: "Enter new category"),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(null);
+              },
+              child: const Text(AppStrings.cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(_newCategoryController.text);
+              },
+              child: const Text(AppStrings.add),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -339,7 +376,7 @@ class _AddProductState extends State<AddProduct> {
                         ),
                 ),
               ),
-              const Gap(20),
+              const Gap(30),
 
               // Text field for name
               TextFormField(
@@ -355,30 +392,83 @@ class _AddProductState extends State<AddProduct> {
                   return null;
                 },
               ),
-              const Gap(20),
-              // Text field for category
-              TextFormField(
-                controller: _categoryController,
-                decoration: InputDecoration(
-                    labelText: '${AppStrings.category}*',
-                    labelStyle: Theme.of(context).textTheme.labelMedium,
-                    border: const OutlineInputBorder()),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the category';
-                  }
-                  return null;
-                },
+              const Gap(30),
+              // Category
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          value: _selectedCategory,
+                          decoration: InputDecoration(
+                            labelText: '${AppStrings.category}*',
+                            labelStyle: Theme.of(context).textTheme.labelMedium,
+                            border: const OutlineInputBorder(),
+                          ),
+                          items: widget.categories.map((category) {
+                            return DropdownMenuItem<String>(
+                              value: category,
+                              child: Text(category),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCategory = value;
+                            });
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a category';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () async {
+                            String? newCategory =
+                                await _showAddCategoryDialog(context);
+                            if (newCategory != null && newCategory.isNotEmpty) {
+                              setState(() {
+                                widget.categories.add(newCategory);
+                                _selectedCategory = newCategory;
+                              });
+                            }
+                          },
+                          child: const Text('Add New Category'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Gap(10),
+                  Expanded(
+                    child: TextFormField(
+                      keyboardType: TextInputType.number,
+                      controller: _capacityOrServing,
+                      decoration: InputDecoration(
+                          labelText: AppRegex.categoryRegex
+                                  .hasMatch(_selectedCategory ?? '')
+                              ? 'Serving'
+                              : 'Capacity',
+                          labelStyle: Theme.of(context).textTheme.labelMedium,
+                          border: const OutlineInputBorder()),
+                    ),
+                  )
+                ],
               ),
-              const Gap(20),
+
+              const Gap(30),
 
               // Text Field for pricing
-              CustomTextFormField(
+              PriceField(
                   initialAmount: widget.product?.price.toString() ?? '',
                   initialCustomDuration: widget.product?.pricePer ?? '',
-                  onChanged: _onCustomFieldChanged),
+                  onChanged: _onPriceFieldChanged),
 
-              const Gap(20),
+              const Gap(30),
 
               // Text field for decription (Optional)
               TextFormField(
@@ -388,7 +478,7 @@ class _AddProductState extends State<AddProduct> {
                     labelStyle: Theme.of(context).textTheme.labelMedium,
                     border: const OutlineInputBorder()),
               ),
-              const Gap(20),
+              const Gap(30),
 
               //Label for [included in the price]
               Align(
@@ -401,7 +491,7 @@ class _AddProductState extends State<AddProduct> {
 
               //builder of [included in the price]
               _buildIncludedInThePrice(),
-              const Gap(20),
+              const Gap(30),
 
               if (_otherServices.isNotEmpty)
                 Align(
@@ -414,7 +504,7 @@ class _AddProductState extends State<AddProduct> {
 
               //list builder of [other services]
               ..._buildAdditionalInfo(),
-              const Gap(20),
+              const Gap(30),
 
               //Button to [add other services]
               SizedBox(
@@ -435,7 +525,7 @@ class _AddProductState extends State<AddProduct> {
                           .copyWith(color: Colors.white)),
                 ),
               ),
-              const Gap(20),
+              const Gap(30),
               _isLoading || _isImageLoading
                   ? Center(
                       child: LoadingAnimationWidget.discreteCircle(

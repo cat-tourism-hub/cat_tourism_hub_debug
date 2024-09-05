@@ -81,6 +81,7 @@ class AppStrings {
   static const String save = 'Save';
   static const String edit = 'Edit';
   static const String add = 'Add';
+  static const String cancel = 'Cancel';
   static const String addField = 'Add field';
 
   static const String clickToAddPhoto = 'Click here to add image.';
@@ -97,6 +98,10 @@ class AppStrings {
   static const String noProducts = 'No products/services available.';
   static const String addOtherServices = 'Add add-ons';
   static const String addOnsServices = 'Add-ons';
+  static const String selectDateRange = 'Check-in date - Check-out date';
+  static const String availability = 'Availability';
+  static const String guests = 'Guests';
+  static const String done = 'Done';
 
   static const String businessAccount = 'Business Account';
   static const String createYourAccount = 'Create your account';

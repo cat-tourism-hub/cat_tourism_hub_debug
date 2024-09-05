@@ -4,6 +4,7 @@ class Product {
   final String category;
   final String? desc;
   final double price;
+  final int capacity;
   final List? photos;
   final List? included;
   final String pricePer;
@@ -19,6 +20,7 @@ class Product {
       required this.price,
       required this.photos,
       this.included,
+      required this.capacity,
       this.availabilityStatus,
       required this.pricePer,
       this.otherServices,
@@ -30,6 +32,7 @@ class Product {
         name: json['name'],
         category: json['category'],
         desc: json['desc'] ?? '',
+        capacity: json['capacity'],
         price: json['price'].toDouble(),
         pricePer: json['pricePer'] ?? '',
         photos: json['photos'],

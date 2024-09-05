@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 
-class CustomTextFormField extends StatefulWidget {
-  const CustomTextFormField({
+class PriceField extends StatefulWidget {
+  const PriceField({
     super.key,
     this.onChanged,
     this.initialAmount = '',
@@ -16,10 +16,10 @@ class CustomTextFormField extends StatefulWidget {
   final String initialCustomDuration;
 
   @override
-  State<CustomTextFormField> createState() => _CustomTextFormFieldState();
+  State<PriceField> createState() => _PriceFieldState();
 }
 
-class _CustomTextFormFieldState extends State<CustomTextFormField> {
+class _PriceFieldState extends State<PriceField> {
   String _duration = 'none';
   late TextEditingController _amountController;
   late TextEditingController _customDurationController;

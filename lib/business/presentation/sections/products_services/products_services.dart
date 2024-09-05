@@ -1,3 +1,4 @@
+import 'package:cat_tourism_hub/core/components/loading_widget.dart';
 import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/products_services/components/card.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/products_services/add_edit_product.dart';
@@ -5,8 +6,6 @@ import 'package:cat_tourism_hub/business/data/product.dart';
 import 'package:cat_tourism_hub/business/providers/product_provider.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 class ProductsServices extends StatefulWidget {
@@ -19,10 +18,10 @@ class ProductsServices extends StatefulWidget {
 class _ProductsServicesState extends State<ProductsServices>
     with AutomaticKeepAliveClientMixin {
   bool _isShowProduct = false;
-  Product? productItem;
-  late String token;
-  late String uid;
-  String searchQuery = '';
+  Product? _productItem;
+  late String _uid;
+  String _searchQuery = '';
+  final List<String> _categories = [];
   @override
   bool get wantKeepAlive => true;
 
@@ -39,8 +38,8 @@ class _ProductsServicesState extends State<ProductsServices>
     final provider =
         Provider.of<AuthenticationProvider>(context, listen: false);
     final productProv = Provider.of<ProductProvider>(context, listen: false);
-    uid = provider.user!.uid;
-    productProv.fetchProducts(uid);
+    _uid = provider.user!.uid;
+    productProv.fetchProducts(_uid);
   }
 
   Map<String, List<Product>> _groupProductsByCategory(List<Product> products) {
@@ -55,11 +54,13 @@ class _ProductsServicesState extends State<ProductsServices>
     return groupedProducts;
   }
 
+  /// Function to build the product list based on the categories
   List<Widget> _buildProductsList(Map<String, List<Product>> products) {
     List<Widget> productList = [];
 
     products.forEach((category, productListByCategory) {
-      if (searchQuery.isEmpty || productListByCategory.isNotEmpty) {
+      _categories.add(category);
+      if (_searchQuery.isEmpty || productListByCategory.isNotEmpty) {
         productList.add(
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -92,7 +93,7 @@ class _ProductsServicesState extends State<ProductsServices>
                       return GestureDetector(
                           onTap: () {
                             toggleViewProduct();
-                            productItem = product;
+                            _productItem = product;
                           },
                           child: BusinessDataCard(data: product));
                     },
@@ -108,25 +109,7 @@ class _ProductsServicesState extends State<ProductsServices>
     return productList;
   }
 
-  Widget _showLoadingAnim(double screenWidth) {
-    return SizedBox(
-        width: screenWidth,
-        height: MediaQuery.sizeOf(context).height,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text(AppStrings.fetchingData),
-            const Gap(10),
-            LoadingAnimationWidget.inkDrop(
-              color: Theme.of(context).indicatorColor,
-              size: 40,
-            ),
-          ],
-        ));
-  }
-
+  /// Widget for the Search Bar
   Widget _searchBar(double screenWidth) {
     return Align(
       alignment: Alignment.topCenter,
@@ -138,7 +121,7 @@ class _ProductsServicesState extends State<ProductsServices>
             leading: const Icon(Icons.search_outlined),
             onChanged: (value) {
               setState(() {
-                searchQuery = value;
+                _searchQuery = value;
               });
             },
           )),
@@ -160,14 +143,15 @@ class _ProductsServicesState extends State<ProductsServices>
           filteredProducts[type] = productsServices
               .where((Product product) => product.name
                   .toLowerCase()
-                  .contains(searchQuery.toLowerCase()))
+                  .contains(_searchQuery.toLowerCase()))
               .toList();
         });
 
         return _isShowProduct
             ? AddProduct(
                 action: AppStrings.edit,
-                product: productItem!,
+                product: _productItem!,
+                categories: _categories,
                 toggleReturn: toggleViewProduct,
               )
             : Stack(
@@ -178,7 +162,7 @@ class _ProductsServicesState extends State<ProductsServices>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (value.isFetching && value.products.isEmpty)
-                          _showLoadingAnim(screenWidth),
+                          LoadingWidget(screenWidth: screenWidth),
 
                         if (value.products.isEmpty)
                           const Align(
@@ -188,7 +172,7 @@ class _ProductsServicesState extends State<ProductsServices>
                         SizedBox(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            children: searchQuery.isEmpty
+                            children: _searchQuery.isEmpty
                                 ? _buildProductsList(groupedProducts)
                                 : _buildProductsList(filteredProducts),
                           ),
@@ -211,6 +195,7 @@ class _ProductsServicesState extends State<ProductsServices>
                               return Dialog(
                                   child: AddProduct(
                                 action: AppStrings.add,
+                                categories: _categories,
                                 toggleReturn: () {
                                   setState(() {
                                     Navigator.of(context).pop();
