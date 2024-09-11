@@ -33,7 +33,7 @@ class ImageCollageWidget extends StatelessWidget {
                   child: GridView.builder(
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 350,
+                      maxCrossAxisExtent: 400,
                       childAspectRatio: 1,
                     ),
                     itemCount: images.length,

@@ -27,10 +27,10 @@ class AppTheme {
             fontFamily: 'Poppins', fontSize: 16, fontWeight: FontWeight.normal),
         labelSmall: TextStyle(
             fontFamily: 'Poppins', fontSize: 12, fontWeight: FontWeight.normal),
-        bodyMedium: TextStyle(
-            fontFamily: 'Poppins', fontSize: 16, fontWeight: FontWeight.normal),
         bodyLarge: TextStyle(
             fontFamily: 'Poppins', fontSize: 20, fontWeight: FontWeight.normal),
+        bodyMedium: TextStyle(
+            fontFamily: 'Poppins', fontSize: 16, fontWeight: FontWeight.normal),
         bodySmall: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 14,

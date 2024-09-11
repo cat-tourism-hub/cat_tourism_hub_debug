@@ -92,8 +92,7 @@ class PartnerCard extends StatelessWidget {
                                   if (loadingProgress == null) return child;
                                   return Center(
                                     child: CircularProgressIndicator(
-                                      backgroundColor: Colors.blue,
-                                      color: Colors.blue,
+                                      color: Theme.of(context).indicatorColor,
                                       value:
                                           loadingProgress.expectedTotalBytes !=
                                                   null

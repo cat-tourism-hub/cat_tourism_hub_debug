@@ -1,12 +1,14 @@
 import 'package:cat_tourism_hub/business/data/establishment.dart';
-import 'package:cat_tourism_hub/business/presentation/sections/products_services/components/card.dart';
 import 'package:cat_tourism_hub/business/providers/product_provider.dart';
 import 'package:cat_tourism_hub/core/components/loading_widget.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
 import 'package:cat_tourism_hub/core/utils/path_to_image_convert.dart';
 import 'package:cat_tourism_hub/users/presentation/components/image_collage.dart';
+import 'package:cat_tourism_hub/users/presentation/components/product_card.dart';
 import 'package:cat_tourism_hub/users/presentation/components/topbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_iconpicker/Models/icon_pack.dart';
+import 'package:flutter_iconpicker/Serialization/icondata_serialization.dart';
 import 'package:gap/gap.dart';
 import 'package:image_collage/image_collage.dart';
 import 'package:intl/intl.dart';
@@ -212,119 +214,129 @@ class _PartnerDetailsState extends State<PartnerDetails> {
               width:
                   _screenWidth < 1200 ? _screenWidth * 0.8 : _screenWidth * 0.7,
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(widget.partner.name ?? '',
-                        style: Theme.of(context).textTheme.headlineLarge),
-                    const Gap(10),
-                    ListTile(
-                        leading: const Icon(Icons.location_on_outlined),
-                        iconColor: Theme.of(context).indicatorColor,
-                        title: Text(
-                          widget.partner.locationString(),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        )),
-                    const Gap(20),
-                    Row(
-                      children: [
-                        Expanded(flex: 3, child: _imageBuilder()),
-                        const Gap(10),
-                        Flexible(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(widget.partner.name ?? '',
+                      style: Theme.of(context).textTheme.headlineLarge),
+                  const Gap(10),
+                  ListTile(
+                      leading: const Icon(Icons.location_on_outlined),
+                      iconColor: Theme.of(context).indicatorColor,
+                      title: Text(
+                        widget.partner.locationString(),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      )),
+                  const Gap(20),
+                  Row(
+                    children: [
+                      Expanded(flex: 3, child: _imageBuilder()),
+                      const Gap(10),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Reviews Panel
+                            SizedBox(
+                              height: 130,
+                              child: Container(
+                                  color: Colors.grey,
+                                  child: const Text('Reviews Panel')),
+                            ),
+                            const Gap(10),
+                            // Google Maps API Panel
+                            SizedBox(
+                              height: 310,
+                              child: Container(
+                                  color: Colors.grey,
+                                  child: const Text('Google Maps API')),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const Gap(30),
+                  SizedBox(
+                      width: _screenWidth < 1200
+                          ? _screenWidth * 0.6
+                          : _screenWidth * 0.4,
+                      child: Text(widget.partner.about ?? '')),
+                  const Gap(30),
+                  const Divider(thickness: 2),
+                  Text(AppStrings.availability,
+                      style: Theme.of(context).textTheme.headlineLarge),
+                  const Gap(20),
+                  // Date Range ang Guest count
+                  Row(
+                    children: [
+                      Flexible(
+                        child: ElevatedButton(
+                          style: _elevatedButtonStyle(context),
+                          onPressed: () => _selectDateRange(context),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Reviews Panel
-                              SizedBox(
-                                height: 130,
-                                child: Container(
-                                    color: Colors.grey,
-                                    child: const Text('Reviews Panel')),
-                              ),
-                              const Gap(10),
-                              // Google Maps API Panel
-                              SizedBox(
-                                height: 310,
-                                child: Container(
-                                    color: Colors.grey,
-                                    child: const Text('Google Maps API')),
-                              ),
+                              const Icon(Icons.calendar_today_outlined),
+                              const Gap(8),
+                              Flexible(
+                                child: Text(
+                                  dateRangeText,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              )
                             ],
                           ),
                         ),
-                      ],
-                    ),
-
-                    const Gap(30),
-                    SizedBox(
-                        width: _screenWidth < 1200
-                            ? _screenWidth * 0.6
-                            : _screenWidth * 0.4,
-                        child: Text(widget.partner.about ?? '')),
-                    const Gap(30),
-                    const Divider(thickness: 2),
-                    Text(AppStrings.availability,
-                        style: Theme.of(context).textTheme.headlineLarge),
-                    const Gap(20),
-                    // Date Range ang Guest count
-                    Row(
-                      children: [
-                        Flexible(
-                          child: ElevatedButton(
-                            style: _elevatedButtonStyle(context),
-                            onPressed: () => _selectDateRange(context),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.calendar_today_outlined),
-                                const Gap(8),
-                                Flexible(
-                                  child: Text(
-                                    dateRangeText,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
-                                )
-                              ],
-                            ),
+                      ),
+                      const Gap(5),
+                      Flexible(
+                        child: ElevatedButton(
+                          style: _elevatedButtonStyle(context),
+                          onPressed: () => setState(() {
+                            _guestCounterDialog(context);
+                          }),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.person_outline),
+                              const Gap(8),
+                              _guestSet
+                                  ? Text(
+                                      '$_adults adults, $_children ${_children > 1 ? 'children' : 'child'}${_travelingWithPets ? ', with pets' : ''}')
+                                  : const Text(AppStrings.guests)
+                            ],
                           ),
                         ),
-                        const Gap(5),
-                        Flexible(
-                          child: ElevatedButton(
-                            style: _elevatedButtonStyle(context),
-                            onPressed: () => setState(() {
-                              _guestCounterDialog(context);
-                            }),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.person_outline),
-                                const Gap(8),
-                                _guestSet
-                                    ? Text(
-                                        '$_adults adults, $_children ${_children > 1 ? 'children' : 'child'}${_travelingWithPets ? ', with pets' : ''}')
-                                    : const Text(AppStrings.guests)
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Gap(10),
-                    GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 300,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                        ),
-                        shrinkWrap: true,
-                        itemCount: value.products.length,
-                        itemBuilder: (context, index) {
-                          return BusinessDataCard(data: value.products[index]);
-                        })
-                  ]),
+                      ),
+                    ],
+                  ),
+                  const Gap(30),
+                  GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 350,
+                        mainAxisExtent: 400,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                      ),
+                      shrinkWrap: true,
+                      itemCount: value.products.length,
+                      itemBuilder: (context, index) {
+                        return ProductCard(
+                            establishment: widget.partner,
+                            product: value.products[index]);
+                      }),
+                  const Gap(20),
+                  Text(
+                    AppStrings.amenities,
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  _buildAmenities(widget.partner.amenities)
+                ],
+              ),
             ),
           ),
         ),
@@ -338,5 +350,72 @@ class _PartnerDetailsState extends State<PartnerDetails> {
     return Consumer<ProductProvider>(
         builder: (context, value, widget) =>
             _screenWidth < 800 ? _mobileView(value) : _desktopView(value));
+  }
+
+  Widget _buildAmenities(amenities) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: amenities.map<Widget>((amenity) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Main heading with an icon for the category
+              Row(
+                children: [
+                  Icon(
+                    deserializeIcon(
+                      amenity['icon'],
+                      iconPack: IconPack.allMaterial,
+                    ),
+                    size: 24,
+                  ),
+                  const Gap(8),
+                  Text(
+                    amenity['heading'],
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
+              const Gap(8),
+              // Sub-items under the heading
+              Padding(
+                padding: const EdgeInsets.only(left: 32.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: (amenity['subFields'] as List<dynamic>)
+                      .map<Widget>((subField) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            deserializeIcon(
+                              subField['icon'],
+                              iconPack: IconPack.allMaterial,
+                            ),
+                            size: 16,
+                          ),
+                          const Gap(8),
+                          Expanded(
+                            child: Text(
+                              subField['text'],
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
   }
 }
