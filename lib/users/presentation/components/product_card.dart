@@ -1,5 +1,7 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cat_tourism_hub/business/data/establishment.dart';
 import 'package:cat_tourism_hub/business/data/product.dart';
+import 'package:cat_tourism_hub/core/components/feature_unavailable.dart';
 import 'package:cat_tourism_hub/core/utils/path_to_image_convert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -31,8 +33,8 @@ class ProductCard extends StatelessWidget {
             ),
             elevation: 5,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (product.photos!.isNotEmpty)
@@ -80,13 +82,15 @@ class ProductCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          product.name,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge!
-                              .copyWith(fontWeight: FontWeight.bold),
+                        FittedBox(
+                          child: Text(
+                            product.name,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(fontWeight: FontWeight.bold),
+                          ),
                         ),
                         const Gap(12),
                         Row(
@@ -99,15 +103,19 @@ class ProductCard extends StatelessWidget {
                               width: 20,
                             ),
                             const Gap(4),
-                            Text(
-                              '${product.price}',
-                              style: const TextStyle(fontSize: 18),
+                            FittedBox(
+                              child: Text(
+                                '${product.price} ',
+                                style: const TextStyle(fontSize: 18),
+                              ),
                             ),
                             if (product.pricePer != 'none')
-                              Text(
-                                '/${product.pricePer}',
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 14),
+                              FittedBox(
+                                child: Text(
+                                  product.pricePer,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
                               ),
                             const Gap(10),
                             const Text('|'),
@@ -115,22 +123,25 @@ class ProductCard extends StatelessWidget {
                             _buildCapacity(product.capacity)
                           ],
                         ),
-                        const Gap(8),
+                        const Gap(20),
                         if (product.desc != null && product.desc!.isNotEmpty)
-                          Flexible(
-                            child: Text(
-                              product.desc ?? '',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: const TextStyle(fontSize: 14),
-                            ),
+                          AutoSizeText(
+                            product.desc ?? '',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                            style: const TextStyle(fontSize: 14),
+                            minFontSize: 14,
                           ),
-                        const Gap(14),
+                        const Gap(20),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {},
-                            child: const Text('Book Now'),
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (_) => const FeatureUnavailable());
+                            },
+                            child: const FittedBox(child: Text('Book Now')),
                           ),
                         ),
                       ],

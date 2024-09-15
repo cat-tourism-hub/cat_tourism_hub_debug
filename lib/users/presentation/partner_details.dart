@@ -1,17 +1,20 @@
 import 'package:cat_tourism_hub/business/data/establishment.dart';
+import 'package:cat_tourism_hub/business/data/product.dart';
+import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/components/content_view.dart';
+import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/components/custom_tab.dart';
+import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/components/custom_tab_bar.dart';
 import 'package:cat_tourism_hub/business/providers/product_provider.dart';
 import 'package:cat_tourism_hub/core/components/loading_widget.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
 import 'package:cat_tourism_hub/core/utils/path_to_image_convert.dart';
+import 'package:cat_tourism_hub/users/presentation/accommodations_page.dart';
 import 'package:cat_tourism_hub/users/presentation/components/image_collage.dart';
 import 'package:cat_tourism_hub/users/presentation/components/product_card.dart';
 import 'package:cat_tourism_hub/users/presentation/components/topbar.dart';
+import 'package:cat_tourism_hub/users/presentation/restaurants_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_iconpicker/Models/icon_pack.dart';
-import 'package:flutter_iconpicker/Serialization/icondata_serialization.dart';
 import 'package:gap/gap.dart';
 import 'package:image_collage/image_collage.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class PartnerDetails extends StatefulWidget {
@@ -22,24 +25,42 @@ class PartnerDetails extends StatefulWidget {
   State<PartnerDetails> createState() => _PartnerDetailsState();
 }
 
-class _PartnerDetailsState extends State<PartnerDetails> {
+class _PartnerDetailsState extends State<PartnerDetails>
+    with SingleTickerProviderStateMixin {
   double _screenWidth = 0;
   final List<Img> _images = [];
   final List<String> _captions = [];
+  List<ContentView> contentViews = [];
   bool _isLoading = true;
-  DateTimeRange? _selectedDateRange;
-  int _adults = 1;
-  int _children = 0;
-  bool _travelingWithPets = false;
-  bool _guestSet = false;
+
+  // late Establishment? _partner;
+  // late PartnersProvider _partnersProvider;
   late ProductProvider _productProvider;
+  TabController? _tabController;
 
   @override
   void initState() {
     super.initState();
+    // _partnersProvider = Provider.of<PartnersProvider>(context, listen: false);
+    // _partner = _partnersProvider.partner;
     _loadImages();
+
+    if (widget.partner.type == AppStrings.hotelAndResto) {
+      contentViews = [
+        ContentView(
+          tab: const CustomTab(title: AppStrings.accommodations),
+          content: AccommodationsPage(partner: widget.partner),
+        ),
+        ContentView(
+          tab: const CustomTab(title: AppStrings.restaurants),
+          content: const RestaurantsPage(),
+        )
+      ];
+    }
+
     _productProvider = Provider.of<ProductProvider>(context, listen: false);
     _productProvider.fetchProducts(widget.partner.id ?? '');
+    _tabController = TabController(length: contentViews.length, vsync: this);
   }
 
   Future<void> _loadImages() async {
@@ -61,29 +82,6 @@ class _PartnerDetailsState extends State<PartnerDetails> {
     });
   }
 
-  ButtonStyle _elevatedButtonStyle(BuildContext context) {
-    return ElevatedButton.styleFrom(
-      textStyle:
-          Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black),
-      iconColor: Theme.of(context).indicatorColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-    );
-  }
-
-  Future<void> _selectDateRange(BuildContext context) async {
-    DateTimeRange? picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      initialDateRange: _selectedDateRange,
-    );
-    if (picked != null) {
-      setState(() {
-        _selectedDateRange = picked;
-      });
-    }
-  }
-
   Widget _imageBuilder() {
     if (_isLoading) {
       return LoadingWidget(screenWidth: _screenWidth);
@@ -94,102 +92,6 @@ class _PartnerDetailsState extends State<PartnerDetails> {
     );
   }
 
-  _guestCounterDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            return AlertDialog(
-              title: Text(AppStrings.guests,
-                  style: Theme.of(context).textTheme.headlineSmall),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _guestSet = true;
-                    });
-                    Navigator.pop(context);
-                  },
-                  child: const Text(AppStrings.done),
-                ),
-              ],
-              content: SizedBox(
-                width: 300,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Adults'),
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () => setStateDialog(() {
-                                if (_adults > 1) _adults--;
-                              }),
-                              icon: const Icon(Icons.remove),
-                            ),
-                            Text(_adults.toString()),
-                            IconButton(
-                              onPressed: () => setStateDialog(() => _adults++),
-                              icon: const Icon(Icons.add),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    // Children Counter
-                    const Gap(10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Expanded(child: Text('Children')),
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () => setStateDialog(() {
-                                if (_children > 0) _children--;
-                              }),
-                              icon: const Icon(Icons.remove),
-                            ),
-                            Text(_children.toString()),
-                            IconButton(
-                              onPressed: () =>
-                                  setStateDialog(() => _children++),
-                              icon: const Icon(Icons.add),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Gap(10),
-                    // Travelling with pets
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Expanded(child: Text('Traveling with pets?')),
-                        Switch(
-                          value: _travelingWithPets,
-                          onChanged: (value) {
-                            setStateDialog(() {
-                              _travelingWithPets = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   Widget _mobileView(ProductProvider value) {
     return SafeArea(
         child: Scaffold(
@@ -197,22 +99,35 @@ class _PartnerDetailsState extends State<PartnerDetails> {
             body: const SingleChildScrollView(child: Column())));
   }
 
+  _showProductPopup(Product product) {
+    print(product.name);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+              child: Column(
+            children: [
+              Text(product.name),
+              Text(product.desc ?? ''),
+              ListView.builder(itemBuilder: (context, index) {
+                return ListTile(title: product.included?[index]);
+              })
+            ],
+          ));
+        });
+  }
+
   Widget _desktopView(ProductProvider value) {
-    String dateRangeText = AppStrings.selectDateRange;
-    if (_selectedDateRange != null) {
-      dateRangeText =
-          '${DateFormat('EEE, MMM d').format(_selectedDateRange!.start)} — ${DateFormat('EEE, MMM d').format(_selectedDateRange!.end)}';
-    }
-    return SafeArea(
-        child: Scaffold(
+    double childrenWidth =
+        _screenWidth < 1200 ? _screenWidth * 0.8 : _screenWidth * 0.7;
+    return Scaffold(
       appBar: const Topbar(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Center(
             child: SizedBox(
-              width:
-                  _screenWidth < 1200 ? _screenWidth * 0.8 : _screenWidth * 0.7,
+              width: childrenWidth,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -256,166 +171,104 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                       ),
                     ],
                   ),
-
                   const Gap(30),
                   SizedBox(
-                      width: _screenWidth < 1200
+                      width: _screenWidth < 1300
                           ? _screenWidth * 0.6
                           : _screenWidth * 0.4,
                       child: Text(widget.partner.about ?? '')),
                   const Gap(30),
-                  const Divider(thickness: 2),
-                  Text(AppStrings.availability,
-                      style: Theme.of(context).textTheme.headlineLarge),
-                  const Gap(20),
-                  // Date Range ang Guest count
-                  Row(
-                    children: [
-                      Flexible(
-                        child: ElevatedButton(
-                          style: _elevatedButtonStyle(context),
-                          onPressed: () => _selectDateRange(context),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.calendar_today_outlined),
-                              const Gap(8),
-                              Flexible(
-                                child: Text(
-                                  dateRangeText,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
+                  const Divider(thickness: 1),
+                  (widget.partner.type == AppStrings.hotelAndResto)
+                      ? SizedBox(
+                          height: 1300,
+                          child: _buildTabBarContent(childrenWidth),
+                        )
+                      : SizedBox(
+                          height: 480,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: value.products.length,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () =>
+                                    _showProductPopup(value.products[index]),
+                                child: Container(
+                                  width: 350,
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 5),
+                                  child: ProductCard(
+                                    establishment: widget.partner,
+                                    product: value.products[index],
+                                  ),
                                 ),
-                              )
-                            ],
+                              );
+                            },
                           ),
                         ),
-                      ),
-                      const Gap(5),
-                      Flexible(
-                        child: ElevatedButton(
-                          style: _elevatedButtonStyle(context),
-                          onPressed: () => setState(() {
-                            _guestCounterDialog(context);
-                          }),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.person_outline),
-                              const Gap(8),
-                              _guestSet
-                                  ? Text(
-                                      '$_adults adults, $_children ${_children > 1 ? 'children' : 'child'}${_travelingWithPets ? ', with pets' : ''}')
-                                  : const Text(AppStrings.guests)
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                   const Gap(30),
-                  GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 350,
-                        mainAxisExtent: 400,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                      ),
-                      shrinkWrap: true,
-                      itemCount: value.products.length,
-                      itemBuilder: (context, index) {
-                        return ProductCard(
-                            establishment: widget.partner,
-                            product: value.products[index]);
-                      }),
-                  const Gap(20),
-                  Text(
-                    AppStrings.amenities,
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                  _buildAmenities(widget.partner.amenities)
+                  const Divider(thickness: 1),
+                  const Gap(30),
+                  if (widget.partner.policies != null) _buildPolicy()
                 ],
               ),
             ),
           ),
         ),
       ),
-    ));
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     _screenWidth = MediaQuery.sizeOf(context).width;
-    return Consumer<ProductProvider>(
-        builder: (context, value, widget) =>
-            _screenWidth < 800 ? _mobileView(value) : _desktopView(value));
+    return Consumer<ProductProvider>(builder: (context, value, widget1) {
+      return SafeArea(
+          child: _screenWidth < 800 ? _mobileView(value) : _desktopView(value));
+    });
   }
 
-  Widget _buildAmenities(amenities) {
+  Widget _buildTabBarContent(double width) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: amenities.map<Widget>((amenity) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Main heading with an icon for the category
-              Row(
-                children: [
-                  Icon(
-                    deserializeIcon(
-                      amenity['icon'],
-                      iconPack: IconPack.allMaterial,
-                    ),
-                    size: 24,
-                  ),
-                  const Gap(8),
-                  Text(
-                    amenity['heading'],
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ],
-              ),
-              const Gap(8),
-              // Sub-items under the heading
-              Padding(
-                padding: const EdgeInsets.only(left: 32.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: (amenity['subFields'] as List<dynamic>)
-                      .map<Widget>((subField) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        children: [
-                          Icon(
-                            deserializeIcon(
-                              subField['icon'],
-                              iconPack: IconPack.allMaterial,
-                            ),
-                            size: 16,
-                          ),
-                          const Gap(8),
-                          Expanded(
-                            child: Text(
-                              subField['text'],
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        CustomTabBar(
+            page: '',
+            mainAxisAlignment: MainAxisAlignment.center,
+            controller: _tabController!,
+            width: width,
+            tabs: [
+              ...contentViews.map((e) => e.tab),
+            ]),
+        Expanded(
+          child: SizedBox(
+              child: TabBarView(controller: _tabController, children: [
+            ...contentViews.map((e) => e.content),
+          ])),
+        ),
+      ],
     );
+  }
+
+  Widget _buildPolicy() {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(AppStrings.policies,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineMedium
+                  ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20)),
+          const Gap(20),
+          Text(widget.partner.policies ?? '')
+        ]);
   }
 }

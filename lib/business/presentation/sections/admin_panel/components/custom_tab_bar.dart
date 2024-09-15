@@ -6,10 +6,12 @@ class CustomTabBar extends StatelessWidget {
       required this.page,
       required this.controller,
       required this.tabs,
+      this.width,
       required this.mainAxisAlignment});
   final String page;
   final TabController controller;
   final List<Widget> tabs;
+  final double? width;
   final MainAxisAlignment mainAxisAlignment;
 
   @override
@@ -21,7 +23,8 @@ class CustomTabBar extends StatelessWidget {
       mainAxisAlignment: mainAxisAlignment,
       children: [
         SizedBox(
-            width: screenWidth < 1000 ? screenWidth * 0.9 : screenWidth * 0.6,
+            width: width ??
+                (screenWidth < 1000 ? screenWidth * 0.9 : screenWidth * 0.6),
             child: TabBar(
               controller: controller,
               tabs: tabs,

@@ -5,6 +5,8 @@ import 'package:cat_tourism_hub/users/providers/partners_provider.dart';
 import 'package:cat_tourism_hub/users/presentation/components/drawer.dart';
 import 'package:cat_tourism_hub/users/presentation/components/partner_card.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -24,7 +26,6 @@ class _HomePageState extends State<HomePage> {
   double screenHeight = 0;
   double screenWidth = 0;
   String searchQuery = '';
-  late PartnersProvider provider;
 
   @override
   void initState() {
@@ -91,7 +92,10 @@ class _HomePageState extends State<HomePage> {
                       child: PartnerCard(
                         data: partner,
                         onTap: () {
-                          context.go('/${partner.name}', extra: partner);
+                          kIsWeb || kIsWasm
+                              ? context.go('/${partner.name}', extra: partner)
+                              : context.push('/${partner.name}',
+                                  extra: partner);
                         },
                       ),
                     );

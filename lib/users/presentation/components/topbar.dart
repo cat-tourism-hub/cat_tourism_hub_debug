@@ -1,4 +1,6 @@
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,7 +19,9 @@ class Topbar extends StatelessWidget implements PreferredSizeWidget {
         Padding(
           padding: const EdgeInsets.only(right: 40),
           child: TextButton(
-            onPressed: () => context.go('/sign-in'),
+            onPressed: () => kIsWasm || kIsWeb
+                ? context.go('/sign-in')
+                : context.push('/sign-in'),
             child: Text(
               AppStrings.loginRegister,
               style: Theme.of(context).textTheme.labelMedium,

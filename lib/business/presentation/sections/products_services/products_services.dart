@@ -21,7 +21,7 @@ class _ProductsServicesState extends State<ProductsServices>
   Product? _productItem;
   late String _uid;
   String _searchQuery = '';
-  final List<String> _categories = [];
+  List<String> _categories = [];
   @override
   bool get wantKeepAlive => true;
 
@@ -57,6 +57,8 @@ class _ProductsServicesState extends State<ProductsServices>
   /// Function to build the product list based on the categories
   List<Widget> _buildProductsList(Map<String, List<Product>> products) {
     List<Widget> productList = [];
+    _categories =
+        []; // reset the contents of the _categories list to avoid duplication of values
 
     products.forEach((category, productListByCategory) {
       _categories.add(category);
