@@ -84,6 +84,8 @@ class AppStrings {
   static const String add = 'Add';
   static const String cancel = 'Cancel';
   static const String addField = 'Add field';
+  static const String tag = 'Tag';
+  static const String seeAll = 'See all';
 
   static const String clickToAddPhoto = 'Click here to add image.';
   static const String addThumbnail = 'Click to add photos';

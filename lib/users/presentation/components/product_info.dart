@@ -1,4 +1,4 @@
-import 'package:cat_tourism_hub/business/data/product.dart';
+import 'package:cat_tourism_hub/core/product.dart';
 import 'package:fan_carousel_image_slider/fan_carousel_image_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -18,15 +18,16 @@ class ProductInfo extends StatelessWidget {
           Expanded(
             flex: 1,
             child: FanCarouselImageSlider.sliderType2(
+              initalPageIndex: 0,
+              isClickable: false,
               imagesLink: images ?? [],
               isAssets: false,
-              autoPlay: false,
               sliderHeight: 500,
               imageFitMode: BoxFit.contain,
+              slideViewportFraction: 0.9,
               currentItemShadow: const [],
               sliderDuration: const Duration(milliseconds: 200),
               imageRadius: 0,
-              slideViewportFraction: 1.2,
             ),
           ),
           const Gap(20),
@@ -40,29 +41,14 @@ class ProductInfo extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                 ),
-                const Gap(8),
-                const Wrap(
-                  spacing: 8.0,
-                  children: [
-                    Icon(Icons.location_city, size: 18),
-                    Text('City view'),
-                    Icon(Icons.ac_unit, size: 18),
-                    Text('Air conditioning'),
-                    Icon(Icons.bathtub, size: 18),
-                    Text('Private Bathroom'),
-                    Icon(Icons.tv, size: 18),
-                    Text('Flat-screen TV'),
-                    Icon(Icons.wifi, size: 18),
-                    Text('Free Wifi'),
-                  ],
-                ),
-                const Gap(16),
 
-                // Room Size and Rating
-                Text(
-                  'Room Size: 11 m²',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                const Gap(16),
+                Text('Category: ${product.category}',
+                    style: Theme.of(context).textTheme.bodyMedium),
+
+                const Gap(16),
+                Text('Capacity: ${product.capacity.toString()}',
+                    style: Theme.of(context).textTheme.bodyMedium),
 
                 const Gap(16),
 
@@ -75,7 +61,7 @@ class ProductInfo extends StatelessWidget {
 
                 // Amenities Section
                 Text(
-                  'Included in your room:',
+                  'Amenities Included:',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -83,26 +69,6 @@ class ProductInfo extends StatelessWidget {
                 const Gap(8),
                 _buildAmenityList(product.included ?? []),
                 const Gap(16),
-
-                Text(
-                  'Room Facilities:',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const Gap(8),
-                _buildAmenityList([
-                  'Laptop safe',
-                  'TV',
-                  'Refrigerator',
-                  'Linens',
-                  'Safe',
-                  'Wake-up service',
-                  'Telephone',
-                  'Air conditioning',
-                  'Cable channels',
-                  'Socket near the bed',
-                ]),
               ],
             ),
           ),

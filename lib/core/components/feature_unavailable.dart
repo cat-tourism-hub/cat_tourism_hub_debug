@@ -15,8 +15,7 @@ class FeatureUnavailable extends StatelessWidget {
           const Gap(10),
           const Text('Uh oh! This feature isn\'t quite ready yet.'),
           const Gap(10),
-          const Text(
-              'Our team of code wizards is working their charm to bring it to life. Check back soon!')
+          const Text('The programmer is taking a coffee break!')
         ],
       ),
     );

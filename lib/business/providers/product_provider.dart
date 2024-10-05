@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cat_tourism_hub/business/data/establishment.dart';
-import 'package:cat_tourism_hub/business/data/product.dart';
+import 'package:cat_tourism_hub/core/product.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

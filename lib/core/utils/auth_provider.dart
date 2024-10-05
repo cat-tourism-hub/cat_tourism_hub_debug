@@ -14,7 +14,11 @@ class AuthenticationProvider with ChangeNotifier {
   String? get token => _token;
 
   AuthenticationProvider() {
-    _auth.authStateChanges().listen(_onAuthStateChanged);
+    try {
+      _auth.authStateChanges().listen(_onAuthStateChanged);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   Future<void> _onAuthStateChanged(User? user) async {
@@ -36,7 +40,7 @@ class AuthenticationProvider with ChangeNotifier {
 
         _role = userDoc['role'];
       } catch (e) {
-        print(e);
+        debugPrint(e.toString());
       }
     }
   }
@@ -46,7 +50,7 @@ class AuthenticationProvider with ChangeNotifier {
       try {
         _token = await user!.getIdToken();
       } catch (e) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
     }
   }

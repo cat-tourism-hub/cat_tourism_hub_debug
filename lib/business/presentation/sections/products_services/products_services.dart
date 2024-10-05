@@ -1,8 +1,8 @@
 import 'package:cat_tourism_hub/core/components/loading_widget.dart';
+import 'package:cat_tourism_hub/core/components/product_list_builder.dart';
 import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
-import 'package:cat_tourism_hub/business/presentation/sections/products_services/components/card.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/products_services/add_edit_product.dart';
-import 'package:cat_tourism_hub/business/data/product.dart';
+import 'package:cat_tourism_hub/core/product.dart';
 import 'package:cat_tourism_hub/business/providers/product_provider.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +18,10 @@ class ProductsServices extends StatefulWidget {
 class _ProductsServicesState extends State<ProductsServices>
     with AutomaticKeepAliveClientMixin {
   bool _isShowProduct = false;
-  Product? _productItem;
   late String _uid;
   String _searchQuery = '';
-  List<String> _categories = [];
+  List<String>? _categories;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -39,76 +39,36 @@ class _ProductsServicesState extends State<ProductsServices>
         Provider.of<AuthenticationProvider>(context, listen: false);
     final productProv = Provider.of<ProductProvider>(context, listen: false);
     _uid = provider.user!.uid;
-    productProv.fetchProducts(_uid);
+    productProv.fetchProducts(_uid).then((_) {
+      setState(() {
+        _categories = _extractCategories(productProv.products);
+      });
+    });
   }
 
-  Map<String, List<Product>> _groupProductsByCategory(List<Product> products) {
+  List<String> _extractCategories(List<Product> products) {
+    final Set<String> categories = {};
+
+    for (var product in products) {
+      if (product.category.isNotEmpty) {
+        categories.add(product.category);
+      }
+    }
+
+    return categories.toList();
+  }
+
+  Map<String, List<Product>> _groupProductsByTagCategory(
+      List<Product> products) {
     Map<String, List<Product>> groupedProducts = {};
 
     for (var product in products) {
-      if (!groupedProducts.containsKey(product.category)) {
-        groupedProducts[product.category] = [];
+      if (!groupedProducts.containsKey(product.tag)) {
+        groupedProducts[product.tag] = [];
       }
-      groupedProducts[product.category]!.add(product);
+      groupedProducts[product.tag]!.add(product);
     }
     return groupedProducts;
-  }
-
-  /// Function to build the product list based on the categories
-  List<Widget> _buildProductsList(Map<String, List<Product>> products) {
-    List<Widget> productList = [];
-    _categories =
-        []; // reset the contents of the _categories list to avoid duplication of values
-
-    products.forEach((category, productListByCategory) {
-      _categories.add(category);
-      if (_searchQuery.isEmpty || productListByCategory.isNotEmpty) {
-        productList.add(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  category,
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-              ),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return GridView.builder(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    itemCount: productListByCategory.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                      mainAxisExtent: 250,
-                      maxCrossAxisExtent: 300,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                    ),
-                    itemBuilder: (BuildContext context, int index) {
-                      final product = productListByCategory[index];
-                      return GestureDetector(
-                          onTap: () {
-                            toggleViewProduct();
-                            _productItem = product;
-                          },
-                          child: BusinessDataCard(data: product));
-                    },
-                  );
-                },
-              )
-            ],
-          ),
-        );
-      }
-    });
-
-    return productList;
   }
 
   /// Widget for the Search Bar
@@ -139,84 +99,78 @@ class _ProductsServicesState extends State<ProductsServices>
     return Consumer<ProductProvider>(
       builder: (context, value, child) {
         Map<String, List<Product>> groupedProducts =
-            _groupProductsByCategory(value.products);
+            _groupProductsByTagCategory(value.products);
 
-        groupedProducts.forEach((type, productsServices) {
-          filteredProducts[type] = productsServices
+        groupedProducts.forEach((tag, productsServices) {
+          filteredProducts[tag] = productsServices
               .where((Product product) => product.name
                   .toLowerCase()
                   .contains(_searchQuery.toLowerCase()))
               .toList();
         });
 
-        return _isShowProduct
-            ? AddProduct(
-                action: AppStrings.edit,
-                product: _productItem!,
-                categories: _categories,
-                toggleReturn: toggleViewProduct,
-              )
-            : Stack(
+        return Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.only(top: 50),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SingleChildScrollView(
-                    padding: const EdgeInsets.only(top: 50),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (value.isFetching && value.products.isEmpty)
-                          LoadingWidget(screenWidth: screenWidth),
+                  if (value.isFetching && value.products.isEmpty)
+                    Center(child: LoadingWidget(screenWidth: screenWidth)),
 
-                        if (value.products.isEmpty)
-                          const Align(
-                              alignment: Alignment.center,
-                              child: Text('No item')),
-                        // Show the products list
-                        SizedBox(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: _searchQuery.isEmpty
-                                ? _buildProductsList(groupedProducts)
-                                : _buildProductsList(filteredProducts),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  //Search bar
-                  _searchBar(screenWidth),
-
-                  // FAB
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return Dialog(
-                                  child: AddProduct(
-                                action: AppStrings.add,
-                                categories: _categories,
-                                toggleReturn: () {
-                                  setState(() {
-                                    Navigator.of(context).pop();
-                                  });
-                                },
-                              ));
-                            });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(20),
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.cyan,
-                      ),
-                      child: const Icon(Icons.add, color: Colors.white),
-                    ),
-                  )
+                  if (!(value.isFetching) && value.products.isEmpty)
+                    const Align(
+                        alignment: Alignment.center, child: Text('No item')),
+                  // Show the products list
+                  if (_searchQuery.isEmpty)
+                    ProductListBuilder(
+                        products: groupedProducts,
+                        caller: 'Business',
+                        categories: _categories)
+                  else
+                    ProductListBuilder(
+                        products: filteredProducts,
+                        caller: 'Business',
+                        categories: _categories)
                 ],
-              );
+              ),
+            ),
+
+            //Search bar
+            _searchBar(screenWidth),
+
+            // FAB
+            Align(
+              alignment: Alignment.bottomRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return Dialog(
+                            child: AddProduct(
+                          action: AppStrings.add,
+                          categories: _categories ?? [],
+                          toggleReturn: () {
+                            setState(() {
+                              Navigator.of(context).pop();
+                            });
+                          },
+                        ));
+                      });
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(20),
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.cyan,
+                ),
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
+            )
+          ],
+        );
       },
     );
   }

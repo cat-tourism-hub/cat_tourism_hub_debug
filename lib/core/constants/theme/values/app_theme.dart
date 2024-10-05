@@ -4,9 +4,7 @@ class AppTheme {
   static final ThemeData themeData = ThemeData(
     scaffoldBackgroundColor: Colors.white,
     cardTheme: const CardTheme(
-        color: Color.fromARGB(255, 247, 247, 247),
-        shadowColor: Color.fromARGB(255, 41, 102, 233),
-        elevation: 3),
+        color: Color.fromARGB(255, 247, 247, 247), elevation: 3),
     indicatorColor: Colors.blue[900],
     textTheme: const TextTheme(
         headlineLarge: TextStyle(

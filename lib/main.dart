@@ -1,4 +1,5 @@
 import 'package:cat_tourism_hub/business/data/establishment.dart';
+import 'package:cat_tourism_hub/business/presentation/sections/products_services/product_details.dart';
 import 'package:cat_tourism_hub/core/constants/theme/values/app_theme.dart';
 import 'package:cat_tourism_hub/users/presentation/partner_details.dart';
 import 'package:cat_tourism_hub/users/presentation/sign_in.dart';
@@ -50,15 +51,15 @@ class MyApp extends StatelessWidget {
       final user = authProvider.user;
       final String? userRole = authProvider.role;
 
-      print(state.matchedLocation);
+      debugPrint(state.matchedLocation);
 
-      if (user == null && state.matchedLocation == '/business') {
-        return '/sign-in';
-      }
       if (user != null && state.matchedLocation == '/business') {
         if (userRole == AppStrings.businessAccount) {
           return '/business';
         }
+      }
+      if (user == null && state.matchedLocation == '/business') {
+        return '/sign-in';
       }
 
       // return '/';
@@ -106,6 +107,15 @@ class MyApp extends StatelessWidget {
             final partner = state.extra;
             return PartnerDetails(
               partner: partner as Establishment,
+            );
+          }),
+      GoRoute(
+          path: '/edit/:id',
+          builder: (context, state) {
+            final product = state.extra as Map<String, dynamic>;
+            return ProductDetails(
+              product: product['product'],
+              categories: product['categories'],
             );
           }),
     ],

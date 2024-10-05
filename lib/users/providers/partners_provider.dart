@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:isolate';
 
 import 'package:cat_tourism_hub/business/data/establishment.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
@@ -30,14 +29,11 @@ class PartnersProvider extends ChangeNotifier {
 
     try {
       final response = await http.get(url).timeout(const Duration(seconds: 30));
-
       if (response.statusCode == 200) {
-        _partners = await Isolate.run(() {
-          final jsonResponse = json.decode(response.body) as List<dynamic>;
-          return jsonResponse
-              .map<Establishment>((partner) => Establishment.fromJson(partner))
-              .toList();
-        });
+        final jsonResponse = json.decode(response.body) as List<dynamic>;
+        _partners = jsonResponse
+            .map<Establishment>((partner) => Establishment.fromJson(partner))
+            .toList();
       } else {
         _error = 'Failed to load partners';
       }

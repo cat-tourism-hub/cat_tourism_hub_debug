@@ -85,6 +85,10 @@ class _IndexState extends State<Index> {
                           return const ProductsServices();
                         case 3:
                           return const Bookings();
+                        case 4:
+                          return const Bookings();
+                        case 5:
+                          return const Bookings();
                         default:
                           return const Center(
                             child: Text(

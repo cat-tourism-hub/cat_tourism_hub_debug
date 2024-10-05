@@ -4,11 +4,11 @@ class Product {
   final String category;
   final String? desc;
   final double price;
-  final int capacity;
   final List? photos;
   final List? included;
   final String pricePer;
-  final Map<String, dynamic>? otherServices;
+  final int? capacity;
+  final String tag;
   final bool? availabilityStatus;
   final String? partnerId;
 
@@ -20,10 +20,10 @@ class Product {
       required this.price,
       required this.photos,
       this.included,
-      required this.capacity,
+      required this.tag,
+      this.capacity,
       this.availabilityStatus,
       required this.pricePer,
-      this.otherServices,
       this.partnerId});
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -32,13 +32,13 @@ class Product {
         name: json['name'],
         category: json['category'],
         desc: json['desc'] ?? '',
-        capacity: json['capacity'],
         price: json['price'].toDouble(),
+        capacity: json['capacity'],
         pricePer: json['pricePer'] ?? '',
         photos: json['photos'],
         availabilityStatus: json['availabilityStatus'],
         included: json['included'] ?? [],
-        otherServices: json['otherServices']);
+        tag: json['tag']);
   }
 
   Map<String, dynamic> toJson() {
@@ -47,10 +47,11 @@ class Product {
       'category': category,
       'desc': desc ?? '',
       'price': price,
+      'capacity': capacity,
       'pricePer': pricePer,
       'included': included,
       'photos': photos,
-      'otherServices': otherServices
+      'tag': tag,
     };
   }
 }
