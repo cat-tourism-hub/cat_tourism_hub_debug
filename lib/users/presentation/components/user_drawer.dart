@@ -1,16 +1,15 @@
-import 'package:cat_tourism_hub/business/data/establishment.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
 import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/core/utils/cached_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sidebarx/sidebarx.dart';
 
-class BusinessDrawer extends StatelessWidget {
-  const BusinessDrawer(
-      {super.key, required this.establishment, required this.controller});
+class UserDrawer extends StatelessWidget {
+  const UserDrawer({super.key, required this.user, required this.controller});
 
-  final Establishment establishment;
+  final User user;
   final SidebarXController controller;
 
   List<SidebarXItem> getSidebarItems(SidebarXController controller) {
@@ -60,34 +59,30 @@ class BusinessDrawer extends StatelessWidget {
                   height: 150,
                   width: double.infinity,
                   child: Center(
-                    child: CachedImage(
-                      imageUrl: establishment.banner ?? '',
-                      imageFit: BoxFit.cover,
-                      imageWidth: double.maxFinite,
-                    ),
-                    // child: FutureBuilder<String>(
-                    //   future: getDownloadUrl(establishment.banner ?? ''),
-                    //   builder: (context, snapshot) {
-                    //     if (snapshot.connectionState == ConnectionState.done) {
-                    //       if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                    //         return CachedNetworkImage(
-                    //           fit: BoxFit.cover,
-                    //           width: double.maxFinite,
-                    //           imageUrl: snapshot.data!,
-                    //           errorWidget: (context, url, error) =>
-                    //               const Icon(Icons.error),
-                    //         );
-                    //       } else {
-                    //         return const Text('Failed to load image');
-                    //       }
-                    //     }
-                    //     return Center(
-                    //       child: LoadingAnimationWidget.waveDots(
-                    //           color: Colors.blue, size: 30),
-                    //     );
-                    //   },
-                    // ),
-                  ),
+                      child: Image.asset('assets/images/dot_catanduanes.jpg')
+                      // child: FutureBuilder<String>(
+                      //   future: getDownloadUrl(establishment.banner ?? ''),
+                      //   builder: (context, snapshot) {
+                      //     if (snapshot.connectionState == ConnectionState.done) {
+                      //       if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      //         return CachedNetworkImage(
+                      //           fit: BoxFit.cover,
+                      //           width: double.maxFinite,
+                      //           imageUrl: snapshot.data!,
+                      //           errorWidget: (context, url, error) =>
+                      //               const Icon(Icons.error),
+                      //         );
+                      //       } else {
+                      //         return const Text('Failed to load image');
+                      //       }
+                      //     }
+                      //     return Center(
+                      //       child: LoadingAnimationWidget.waveDots(
+                      //           color: Colors.blue, size: 30),
+                      //     );
+                      //   },
+                      // ),
+                      ),
                 ),
               )
             : const SizedBox(height: 150);
@@ -109,7 +104,7 @@ class BusinessDrawer extends StatelessWidget {
                     radius: extended ? 30 : 20,
                     child: ClipOval(
                       child: CachedImage(
-                        imageUrl: establishment.logo ?? '',
+                        imageUrl: user.photoURL ?? '',
                       ),
                       // child: FutureBuilder<String>(
                       //   future: getDownloadUrl(establishment.logo ?? ''),
@@ -140,8 +135,8 @@ class BusinessDrawer extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(establishment.name ?? ''),
-                            Text(establishment.contact?['email'] ?? ''),
+                            Text(user.displayName ?? ''),
+                            Text(user.email ?? ''),
                           ],
                         ),
                       )

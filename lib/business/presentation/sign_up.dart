@@ -97,7 +97,7 @@ class _SignUpState extends State<SignUp> {
         _isLoading = false;
       });
 
-      SnackbarHelper.showSnackBar(result);
+      SnackbarHelper.showSnackBar(result, isError: result.statusCode != 201);
     }
   }
 

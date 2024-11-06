@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cat_tourism_hub/core/components/image_caption_widget.dart';
-import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
+import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/components/dynamic_fields/icon_textfield.dart';
 import 'package:cat_tourism_hub/business/data/photo.dart';
 import 'package:cat_tourism_hub/business/providers/partner_acct_provider.dart';
@@ -38,6 +38,7 @@ class _ServicesAndAmenitiesState extends State<ServicesAndAmenities> {
   bool _isEditMode = false;
   bool _fieldsPopulated = false;
   bool _isLoading = true;
+  bool _isDisposed = false;
   bool _isSaving = false;
   late AuthenticationProvider authProvider;
 
@@ -147,6 +148,7 @@ class _ServicesAndAmenitiesState extends State<ServicesAndAmenities> {
   Future<void> _saveData(PartnerAcctProvider value) async {
     // Exit if no data changes
     if (!_hasDataChanged) {
+      print('Data change: $_hasDataChanged');
       setState(() {
         _isEditMode = false;
       });
@@ -369,6 +371,7 @@ class _ServicesAndAmenitiesState extends State<ServicesAndAmenities> {
       captionControllers.add(TextEditingController(text: field.key));
     }
 
+    if (_isDisposed) return;
     setState(() {
       _imageFiles.addAll(imageFiles);
       _captionController.addAll(captionControllers);
@@ -528,6 +531,12 @@ class _ServicesAndAmenitiesState extends State<ServicesAndAmenities> {
       onPressed: _addNewField,
       child: const Text(AppStrings.addField),
     );
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   @override

@@ -22,17 +22,18 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
+
   TabController? controller;
   double screenHeight = 0;
   double screenWidth = 0;
   String searchQuery = '';
+  late PartnersProvider _partnersProvider;
 
   @override
   void initState() {
     super.initState();
-    final partnerProvider =
-        Provider.of<PartnersProvider>(context, listen: false);
-    partnerProvider.fetchPartners();
+    _partnersProvider = Provider.of<PartnersProvider>(context, listen: false);
+    _partnersProvider.fetchPartners();
   }
 
   /// The function `_groupPartnersByType` takes a list of Partner objects and groups them by their type
@@ -59,8 +60,17 @@ class _HomePageState extends State<HomePage> {
     return groupedPartners;
   }
 
+  void scrollToSection(GlobalKey key) {
+    Scrollable.ensureVisible(
+      key.currentContext!,
+      duration: const Duration(seconds: 1),
+      curve: Curves.easeInOut,
+    );
+  }
+
   List<Widget> _buildPartnerList(Map<String, List<Establishment>> partnersMap) {
     List<Widget> partnerList = [];
+
     partnersMap.forEach((type, partners) {
       if (searchQuery.isEmpty || partners.isNotEmpty) {
         partnerList.add(
@@ -92,10 +102,10 @@ class _HomePageState extends State<HomePage> {
                       child: PartnerCard(
                         data: partner,
                         onTap: () {
+                          _partnersProvider.setPartner(partner);
                           kIsWeb || kIsWasm
-                              ? context.go('/${partner.name}', extra: partner)
-                              : context.push('/${partner.name}',
-                                  extra: partner);
+                              ? context.go('/${partner.name}')
+                              : context.push('/${partner.name}');
                         },
                       ),
                     );
@@ -222,7 +232,10 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(
           AppStrings.appName,
-          style: Theme.of(context).textTheme.headlineMedium,
+          style: Theme.of(context)
+              .textTheme
+              .headlineMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
       body: RefreshIndicator(

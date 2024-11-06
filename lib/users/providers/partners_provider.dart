@@ -19,7 +19,6 @@ class PartnersProvider extends ChangeNotifier {
 
   void setPartner(Establishment partner) {
     _partner = partner;
-    notifyListeners();
   }
 
   Future<void> fetchPartners() async {
@@ -35,13 +34,13 @@ class PartnersProvider extends ChangeNotifier {
             .map<Establishment>((partner) => Establishment.fromJson(partner))
             .toList();
       } else {
-        _error = 'Failed to load partners';
+        _error = 'Failed to load partners. Server error.';
       }
     } on TimeoutException catch (_) {
       _error = '${AppStrings.error1}\nPlease check your internet connection.';
       notifyListeners();
     } catch (e) {
-      _error = e.toString();
+      _error = 'Server Error! Please try again later.';
     } finally {
       _isLoading = false;
       notifyListeners();

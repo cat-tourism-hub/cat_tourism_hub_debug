@@ -1,11 +1,14 @@
 import 'package:cat_tourism_hub/business/presentation/components/text_form_field.dart';
 import 'package:cat_tourism_hub/core/components/feature_unavailable.dart';
-import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
+import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/core/utils/app_constants.dart';
 import 'package:cat_tourism_hub/core/utils/app_regex.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cat_tourism_hub/core/utils/snackbar_helper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -72,34 +75,53 @@ class _SignInState extends State<SignIn> {
     try {
       final provider =
           Provider.of<AuthenticationProvider>(context, listen: false);
-      await provider.signIn(emailController.text, passwordController.text);
+
+      final redirectUrl = (GoRouterState.of(context).extra
+          as Map<String, dynamic>?)?['redirectUrl'];
+
+      // Call signIn and check if an error was returned
+      final errorMessage = await provider.signIn(
+        emailController.text,
+        passwordController.text,
+      );
+
+      if (errorMessage != null) {
+        if (!mounted) return;
+        SnackbarHelper.showSnackBar(errorMessage);
+        return; // Exit if there's an error
+      }
+
       // Wait until the role is fetched and updated, with a timeout
       final startTime = DateTime.now();
       while (provider.role == null) {
         await Future.delayed(const Duration(milliseconds: 100));
         if (DateTime.now().difference(startTime).inSeconds > 5) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error authenticating account')),
-          );
+          SnackbarHelper.showSnackBar('Error authenticating account');
+          return; // Exit if timeout occurs
         }
       }
 
+      // Handle post-login redirection
       if (provider.role == AppStrings.businessAccount) {
         if (!mounted) return;
         context.go('/business');
-      }
-    } on FirebaseAuthException catch (e) {
-      String? errorMessage;
-      if (e.code == 'invalid-credential') {
-        errorMessage = 'Incorrect email or password';
+      } else if (redirectUrl != null) {
+        // Redirect to the intended page if provided
+        if (!mounted) return;
+        (kIsWasm || kIsWeb)
+            ? context.go(redirectUrl)
+            : context.push(redirectUrl);
+      } else if (provider.role == 'User Account') {
+        if (!mounted) return;
+        (kIsWasm || kIsWeb)
+            ? context.go('/dashboard')
+            : context.push('/dashboard');
       } else {
-        errorMessage = e.code.toString();
+        // Default fallback
+        if (!mounted) return;
+        (kIsWasm || kIsWeb) ? context.go('/') : context.push('/');
       }
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -241,7 +263,7 @@ class _SignInState extends State<SignIn> {
                                   },
                                   child: const Text(AppStrings.forgotPassword),
                                 ),
-                                const SizedBox(height: 20),
+                                const Gap(20),
                                 ValueListenableBuilder(
                                   valueListenable: fieldValidNotifier,
                                   builder: (_, isValid, __) {
@@ -261,14 +283,13 @@ class _SignInState extends State<SignIn> {
                                           );
                                   },
                                 ),
-                                const SizedBox(height: 20),
+                                const Gap(20),
                                 TextButton(
                                   onPressed: () async {
                                     // TODO: Develop the create account feature
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) =>
-                                            const FeatureUnavailable());
+                                    (kIsWasm || kIsWeb)
+                                        ? context.go('/create-account')
+                                        : context.push('/create-account');
                                   },
                                   child: const Text('Create Account'),
                                 ),

@@ -1,6 +1,6 @@
 import 'package:cat_tourism_hub/core/components/loading_widget.dart';
 import 'package:cat_tourism_hub/core/components/product_list_builder.dart';
-import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
+import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/products_services/add_edit_product.dart';
 import 'package:cat_tourism_hub/core/product.dart';
 import 'package:cat_tourism_hub/business/providers/product_provider.dart';
@@ -17,18 +17,24 @@ class ProductsServices extends StatefulWidget {
 
 class _ProductsServicesState extends State<ProductsServices>
     with AutomaticKeepAliveClientMixin {
-  bool _isShowProduct = false;
   late String _uid;
   String _searchQuery = '';
   List<String>? _categories;
+  bool _isDisposed = false;
 
   @override
   bool get wantKeepAlive => true;
 
-  void toggleViewProduct() {
-    setState(() {
-      _isShowProduct = !_isShowProduct;
-    });
+  // void toggleViewProduct() {
+  //   setState(() {
+  //     _isShowProduct = !_isShowProduct;
+  //   });
+  // }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   @override
@@ -40,6 +46,7 @@ class _ProductsServicesState extends State<ProductsServices>
     final productProv = Provider.of<ProductProvider>(context, listen: false);
     _uid = provider.user!.uid;
     productProv.fetchProducts(_uid).then((_) {
+      if (_isDisposed) return;
       setState(() {
         _categories = _extractCategories(productProv.products);
       });
@@ -111,30 +118,19 @@ class _ProductsServicesState extends State<ProductsServices>
 
         return Stack(
           children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.only(top: 50),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (value.isFetching && value.products.isEmpty)
-                    Center(child: LoadingWidget(screenWidth: screenWidth)),
+            if (value.isFetching && value.products.isEmpty)
+              Center(child: LoadingWidget(screenWidth: screenWidth)),
 
-                  if (!(value.isFetching) && value.products.isEmpty)
-                    const Align(
-                        alignment: Alignment.center, child: Text('No item')),
-                  // Show the products list
-                  if (_searchQuery.isEmpty)
-                    ProductListBuilder(
-                        products: groupedProducts,
-                        caller: 'Business',
-                        categories: _categories)
-                  else
-                    ProductListBuilder(
-                        products: filteredProducts,
-                        caller: 'Business',
-                        categories: _categories)
-                ],
-              ),
+            if (!(value.isFetching) && value.products.isEmpty)
+              const Align(alignment: Alignment.center, child: Text('No item')),
+
+            Padding(
+              padding: const EdgeInsets.only(top: 50),
+              child: ProductListBuilder(
+                  products:
+                      _searchQuery.isEmpty ? groupedProducts : filteredProducts,
+                  caller: 'Business',
+                  categories: _categories),
             ),
 
             //Search bar
@@ -163,7 +159,7 @@ class _ProductsServicesState extends State<ProductsServices>
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
                   padding: const EdgeInsets.all(20),
-                  backgroundColor: Colors.green,
+                  backgroundColor: Theme.of(context).indicatorColor,
                   foregroundColor: Colors.cyan,
                 ),
                 child: const Icon(Icons.add, color: Colors.white),

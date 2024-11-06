@@ -1,5 +1,5 @@
 import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/components/partner_details/partner_details_item.dart';
-import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
+import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/business/providers/partner_acct_provider.dart';
 import 'package:cat_tourism_hub/core/utils/cached_image.dart';
 import 'package:cat_tourism_hub/core/utils/snackbar_helper.dart';

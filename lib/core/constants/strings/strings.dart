@@ -86,6 +86,7 @@ class AppStrings {
   static const String addField = 'Add field';
   static const String tag = 'Tag';
   static const String seeAll = 'See all';
+  static const String room = 'Room';
 
   static const String clickToAddPhoto = 'Click here to add image.';
   static const String addThumbnail = 'Click to add photos';
@@ -130,6 +131,7 @@ class AppStrings {
   static const String password = 'Password';
   static const String pleaseEnterPassword = 'Please enter password';
   static const String invalidPassword = 'Invalid Password';
+  static const String verifyPassword = 'Verify Password';
 
   static const String error1 = 'Error gathering all the happy places.';
   static const String error2 = 'Error gathering the happy place.';
@@ -138,6 +140,7 @@ class AppStrings {
   static const String caption = 'Caption';
   static const String tryAgain = 'Try again';
   static const String captionPrompt = 'Please enter a caption';
+  static const String dashboard = 'Dashboard';
 
   static const String searchTheHappyIsland = 'Search the Happy Island...';
 }

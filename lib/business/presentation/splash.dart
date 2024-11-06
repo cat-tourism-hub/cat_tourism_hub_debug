@@ -1,5 +1,5 @@
 import 'package:cat_tourism_hub/business/presentation/index.dart';
-import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
+import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/business/providers/partner_acct_provider.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
 import 'package:flutter/material.dart';

@@ -1,15 +1,17 @@
-import 'package:cat_tourism_hub/business/data/establishment.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/products_services/product_details.dart';
+import 'package:cat_tourism_hub/core/auth/create_account.dart';
 import 'package:cat_tourism_hub/core/constants/theme/values/app_theme.dart';
+import 'package:cat_tourism_hub/users/presentation/booking.dart';
 import 'package:cat_tourism_hub/users/presentation/partner_details.dart';
-import 'package:cat_tourism_hub/users/presentation/sign_in.dart';
+import 'package:cat_tourism_hub/core/auth/sign_in.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/admin_panel/admin_panel.dart';
 import 'package:cat_tourism_hub/business/presentation/sign_up.dart';
 import 'package:cat_tourism_hub/business/presentation/splash.dart';
 import 'package:cat_tourism_hub/firebase_options.dart';
-import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
+import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/business/providers/partner_acct_provider.dart';
 import 'package:cat_tourism_hub/business/providers/product_provider.dart';
+import 'package:cat_tourism_hub/users/presentation/user_homepage.dart';
 import 'package:cat_tourism_hub/users/providers/partners_provider.dart';
 import 'package:cat_tourism_hub/users/presentation/homepage.dart';
 import 'package:cat_tourism_hub/core/utils/snackbar_helper.dart';
@@ -49,16 +51,21 @@ class MyApp extends StatelessWidget {
       final AuthenticationProvider authProvider =
           Provider.of<AuthenticationProvider>(context, listen: false);
       final user = authProvider.user;
-      final String? userRole = authProvider.role;
+      print('ROUTER: $user');
+      // final String? userRole = authProvider.role;
 
       debugPrint(state.matchedLocation);
 
-      if (user != null && state.matchedLocation == '/business') {
-        if (userRole == AppStrings.businessAccount) {
-          return '/business';
-        }
-      }
       if (user == null && state.matchedLocation == '/business') {
+        return '/sign-in';
+      }
+      if (user == null && state.matchedLocation == '/setup') {
+        return '/sign-in';
+      }
+      if (user == null && state.matchedLocation == '/book') {
+        return '/sign-in';
+      }
+      if (user == null && state.matchedLocation == '/dashboard') {
         return '/sign-in';
       }
 
@@ -73,7 +80,7 @@ class MyApp extends StatelessWidget {
       // if (user != null && userRole == AppStrings.businessAccount) {
       //   return '/business';
       // }
-      return state.matchedLocation;
+      return null;
     },
     routes: [
       GoRoute(
@@ -97,27 +104,45 @@ class MyApp extends StatelessWidget {
         builder: (context, state) => const SignIn(),
       ),
       GoRoute(
+        path: '/create-account',
+        name: 'create-account',
+        builder: (context, state) => const CreateAccount(),
+      ),
+      GoRoute(
         path: '/business/sign-up',
         name: 'business-sign-up',
         builder: (context, state) => const SignUp(),
       ),
       GoRoute(
-          path: '/:id',
-          builder: (context, state) {
-            final partner = state.extra;
-            return PartnerDetails(
-              partner: partner as Establishment,
-            );
-          }),
+        path: '/dashboard',
+        builder: (context, state) {
+          return const UserHomepage();
+        },
+      ),
       GoRoute(
-          path: '/edit/:id',
-          builder: (context, state) {
-            final product = state.extra as Map<String, dynamic>;
-            return ProductDetails(
-              product: product['product'],
-              categories: product['categories'],
-            );
-          }),
+        path: '/book',
+        builder: (context, state) {
+          return const Book();
+        },
+      ),
+      GoRoute(
+        path: '/:id',
+        builder: (context, state) {
+          final partnerId = state.pathParameters['id'];
+          print(partnerId);
+          return const PartnerDetails();
+        },
+      ),
+      GoRoute(
+        path: '/edit/:id',
+        builder: (context, state) {
+          final product = state.extra as Map<String, dynamic>;
+          return ProductDetails(
+            product: product['product'],
+            categories: product['categories'],
+          );
+        },
+      ),
     ],
   );
 
@@ -134,6 +159,7 @@ class MyApp extends StatelessWidget {
         scaffoldMessengerKey: SnackbarHelper.key,
         title: AppStrings.appName,
         theme: AppTheme.themeData,
+        themeMode: ThemeMode.system,
         routerConfig: _router,
       ),
     );

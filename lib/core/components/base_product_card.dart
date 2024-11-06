@@ -1,11 +1,16 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cat_tourism_hub/core/components/feature_unavailable.dart';
 import 'package:cat_tourism_hub/core/product.dart';
+import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/core/utils/path_to_image_convert.dart';
+import 'package:cat_tourism_hub/core/utils/snackbar_helper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:provider/provider.dart';
 
 class BaseProductCard extends StatelessWidget {
   const BaseProductCard({
@@ -47,7 +52,7 @@ class BaseProductCard extends StatelessWidget {
                     children: [
                       buildContent(context), // Customizable content section
 
-                      const Gap(20),
+                      const Gap(10),
 
                       // Conditionally show "Book Now" button
                       if (showBookButton) _buildBookNowButton(context),
@@ -173,8 +178,20 @@ class BaseProductCard extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          showDialog(
-              context: context, builder: (_) => const FeatureUnavailable());
+          final auth =
+              Provider.of<AuthenticationProvider>(context, listen: false);
+
+          /// Checks if there is a currently logged in user
+          if (auth.user == null) {
+            SnackbarHelper.showSnackBar('Please login before booking.');
+            (kIsWasm || kIsWeb)
+                ? context.go('/sign-in', extra: {'redirectUrl': '/book'})
+                : context.push('/sign-in', extra: {'redirectUrl': '/book'});
+            return;
+          } else {
+            /// Proceed to the [booking] if there is a user
+            (kIsWasm || kIsWeb) ? context.go('/book') : context.push('/book');
+          }
         },
         child: const FittedBox(child: Text('Book Now')),
       ),

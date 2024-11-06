@@ -33,7 +33,6 @@ class PartnerCard extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
-            elevation: 5,
             child: SizedBox(
               width: cardWidth,
               child: Stack(

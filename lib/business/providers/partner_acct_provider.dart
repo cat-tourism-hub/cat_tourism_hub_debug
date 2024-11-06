@@ -123,7 +123,9 @@ Future submitForm(Establishment establishment, List<Photo> files) async {
     return 'Application submitted successfully';
   } else {
     final Map<String, dynamic> responseBody = json.decode(response.body);
-    final String errorMessage = responseBody['Error'] ?? 'Unknown error';
-    return errorMessage;
+    // Extract error message or use a default one
+    final String errorMessage =
+        responseBody['Error'] ?? 'Unknown error occurred';
+    return errorMessage; // Return error message
   }
 }

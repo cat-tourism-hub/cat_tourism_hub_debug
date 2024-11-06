@@ -8,6 +8,7 @@ import 'package:cat_tourism_hub/core/utils/path_to_image_convert.dart';
 import 'package:cat_tourism_hub/users/presentation/components/image_collage.dart';
 import 'package:cat_tourism_hub/users/presentation/components/product_info.dart';
 import 'package:cat_tourism_hub/users/presentation/components/topbar.dart';
+import 'package:cat_tourism_hub/users/providers/partners_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconpicker/Models/icon_pack.dart';
 import 'package:flutter_iconpicker/Serialization/icondata_serialization.dart';
@@ -18,8 +19,7 @@ import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class PartnerDetails extends StatefulWidget {
-  const PartnerDetails({super.key, required this.partner});
-  final Establishment partner;
+  const PartnerDetails({super.key});
 
   @override
   State<PartnerDetails> createState() => _PartnerDetailsState();
@@ -35,13 +35,17 @@ class _PartnerDetailsState extends State<PartnerDetails> {
   late ProductProvider _productProvider;
   TabController? _tabController;
   bool _isDisposed = false;
+  Establishment? _partner;
 
   @override
   void initState() {
     super.initState();
+    final partnerProvider =
+        Provider.of<PartnersProvider>(context, listen: false);
+    _partner = partnerProvider.partner;
     _loadPartnerImages();
     _productProvider = Provider.of<ProductProvider>(context, listen: false);
-    _productProvider.fetchProducts(widget.partner.id ?? '');
+    _productProvider.fetchProducts(_partner?.id ?? '');
   }
 
   void _groupProductByTag(List<Product> products) {
@@ -58,8 +62,8 @@ class _PartnerDetailsState extends State<PartnerDetails> {
   }
 
   Future<void> _loadPartnerImages() async {
-    if (widget.partner.facilities != null) {
-      for (var field in widget.partner.facilities!.entries) {
+    if (_partner?.facilities != null) {
+      for (var field in _partner!.facilities!.entries) {
         String url = await getDownloadUrl(field.value);
         if (_isDisposed) return;
         setState(() {
@@ -220,110 +224,95 @@ class _PartnerDetailsState extends State<PartnerDetails> {
 
     return Scaffold(
       appBar: const Topbar(),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Center(
-            child: SizedBox(
-              width: childrenWidth,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(widget.partner.name ?? '',
-                      style: Theme.of(context).textTheme.headlineLarge),
-                  const Gap(10),
-                  ListTile(
-                      leading: const Icon(Icons.location_on_outlined),
-                      iconColor: Theme.of(context).indicatorColor,
-                      title: Text(
-                        widget.partner.locationString(),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      )),
-                  const Gap(20),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Center(
+              child: SizedBox(
+                width: childrenWidth,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(_partner?.name ?? '',
+                        style: Theme.of(context).textTheme.headlineLarge),
+                    const Gap(10),
+                    ListTile(
+                        leading: const Icon(Icons.location_on_outlined),
+                        iconColor: Theme.of(context).indicatorColor,
+                        title: Text(
+                          _partner?.locationString() ?? '',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        )),
+                    const Gap(20),
 
-                  // Widget for partner images and ratings with map API
-                  Row(
-                    children: [
-                      Expanded(flex: 3, child: _partnerImageBuilder()),
-                      const Gap(10),
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Reviews Panel
-                            SizedBox(
-                              height: 130,
-                              child: Container(
-                                  color: Colors.grey,
-                                  child: const Text('Reviews Panel')),
-                            ),
-                            const Gap(10),
-                            // Google Maps API Panel
-                            SizedBox(
-                              height: 310,
-                              child: Container(
-                                  color: Colors.grey,
-                                  child: const Text('Google Maps API')),
-                            ),
-                          ],
+                    // Widget for partner images and ratings with map API
+                    Row(
+                      children: [
+                        Expanded(flex: 3, child: _partnerImageBuilder()),
+                        const Gap(10),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Reviews Panel
+                              SizedBox(
+                                height: 310,
+                                child: Container(
+                                    color: Colors.grey,
+                                    child: const Text('Reviews Panel')),
+                              ),
+                              const Gap(10),
+                              // Google Maps API Panel
+                              SizedBox(
+                                height: 130,
+                                child: Container(
+                                    color: Colors.grey,
+                                    child: const Text('Google Maps API')),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const Gap(30),
+                      ],
+                    ),
+                    const Gap(30),
 
-                  /// Widget for partner's about
-                  SizedBox(
-                      width: _screenWidth < 1300
-                          ? _screenWidth * 0.6
-                          : _screenWidth * 0.4,
-                      child: Text(widget.partner.about ?? '')),
-                  const Gap(30),
+                    /// Widget for partner's about
+                    SizedBox(
+                        width: _screenWidth < 1300
+                            ? _screenWidth * 0.6
+                            : _screenWidth * 0.4,
+                        child: Text(_partner?.about ?? '')),
+                    const Gap(30),
 
-                  // Widget builder for different tags
-                  ProductListBuilder(
-                    products: groupedData,
-                    caller: 'User',
-                    onTap: (product) => _showProductPopup(product),
-                  ),
+                    // Widget builder for products with different tags
+                    ProductListBuilder(
+                      products: groupedData,
+                      caller: 'User',
+                      onTap: (product) => _showProductPopup(product),
+                    ),
 
-                  const Divider(thickness: 1),
-                  //             Positioned(
-                  //               right: 0,
-                  //               child: Container(
-                  //                 decoration: const BoxDecoration(
-                  //                   color: Colors.white60,
-                  //                   shape: BoxShape.circle,
-                  //                 ),
-                  //                 child: IconButton(
-                  //                   iconSize: 30,
-                  //                   icon: const Icon(Icons.arrow_forward),
-                  //                   color: Theme.of(context).indicatorColor,
-                  //                   onPressed: () =>
-                  //                       scrollRight(_scrollController),
-                  //                 ),
-                  //               ),
-                  //             ),
-                  //           ]),
-                  //           const Gap(30),
-                  //           const Divider(thickness: 1),
-                  //         ]);
-                  //   }).toList(),
-                  // ),
-                  if (widget.partner.amenities != null)
-                    Text(AppStrings.amenities,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.bold, fontSize: 20)),
-                  const Gap(20),
-                  _buildAmenities(widget.partner.amenities ?? [],
-                      boxConstraints: boxConstraints),
-                  const Gap(30),
-                  if (widget.partner.policies != null) _buildPolicy()
-                ],
+                    const Divider(thickness: 1),
+                    // AMENITIES TITLE
+                    if (_partner?.amenities != null)
+                      Text(AppStrings.amenities,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
+                                  fontWeight: FontWeight.bold, fontSize: 20)),
+                    const Gap(20),
+
+                    /// Amenity list builder
+                    _buildAmenities(_partner?.amenities ?? [],
+                        boxConstraints: boxConstraints),
+                    const Gap(30),
+
+                    /// Policy builder
+                    if (_partner?.policies != null) _buildPolicy()
+                  ],
+                ),
               ),
             ),
           ),
@@ -360,7 +349,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                   .headlineMedium
                   ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20)),
           const Gap(20),
-          Text(widget.partner.policies ?? '')
+          Text(_partner?.policies ?? '')
         ]);
   }
 }

@@ -1,5 +1,5 @@
 import 'package:cat_tourism_hub/core/utils/app_regex.dart';
-import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
+import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/products_services/components/price_field.dart';
 import 'package:cat_tourism_hub/business/data/photo.dart';
 import 'package:cat_tourism_hub/core/product.dart';
@@ -41,7 +41,7 @@ class _AddProductState extends State<AddProduct> {
   final TextEditingController _desController = TextEditingController();
   final TextEditingController _newCategoryController = TextEditingController();
   final TextEditingController _tag = TextEditingController();
-  final Map<String, TextEditingController> _controllers = {};
+
   final TextEditingController _chipInputController = TextEditingController();
   List<Photo> _imageFiles = [];
   List? _included;
@@ -51,7 +51,6 @@ class _AddProductState extends State<AddProduct> {
   String? _selectedCategory;
   bool _isLoading = false;
   final bool _isImageLoading = false;
-  // bool _isDisposed = false;
 
   void disposeControllers() {
     _nameController.dispose();
@@ -59,7 +58,6 @@ class _AddProductState extends State<AddProduct> {
     _newCategoryController.dispose();
     _capacityOrServing.dispose();
     _tag.dispose();
-    _controllers.forEach((key, value) => value.dispose());
   }
 
   /// Function to handle getting multiple photos
@@ -82,7 +80,6 @@ class _AddProductState extends State<AddProduct> {
 
   @override
   void dispose() {
-    // _isDisposed = true;
     disposeControllers();
     super.dispose();
   }
@@ -114,7 +111,7 @@ class _AddProductState extends State<AddProduct> {
       tag: _tag.text,
     );
     try {
-      String response = await value2.addEditProduct(
+      var response = await value2.addEditProduct(
           widget.action,
           widget.product?.id,
           value3.token ?? '',
@@ -122,9 +119,10 @@ class _AddProductState extends State<AddProduct> {
           value1.establishment!,
           product);
 
-      SnackbarHelper.showSnackBar(response);
+      SnackbarHelper.showSnackBar(response,
+          isError: response.statusCode != 201);
     } catch (e) {
-      FirebaseCrashlytics.instance.log('IDK Error in Add/Edit Product');
+      FirebaseCrashlytics.instance.log('IDK Error in Add Product');
     }
 
     setState(() {
@@ -182,35 +180,6 @@ class _AddProductState extends State<AddProduct> {
   void initState() {
     super.initState();
   }
-
-  // void _assignValues() async {
-  //   _isImageLoading = true;
-  //   _nameController.text = widget.product?.name ?? '';
-  //   _selectedCategory = widget.product?.category ?? '';
-  //   _capacityOrServing.text = widget.product?.capacity.toString() ?? '0';
-  //   _desController.text = widget.product?.desc ?? '';
-  //   _included = widget.product?.included ?? [];
-  //   _amount = widget.product!.price;
-  //   _duration = widget.product!.pricePer;
-
-  //   _chipInputController.text = _included.join(',');
-  //   if (mounted) {
-  //     setState(() {});
-  //   }
-  // }
-
-  // void _loadphotos() async {
-  //   for (String image in widget.product?.photos ?? []) {
-  //     var img = await getImageData(await getDownloadUrl(image));
-  //     var title = image.split('/').last;
-  //     _imageFiles.add(Photo(image: img, title: title));
-  //   }
-
-  //   if (_isDisposed) return;
-  //   setState(() {
-  //     _isImageLoading = false;
-  //   });
-  // }
 
   Future<String?> _showAddCategoryDialog(BuildContext context) async {
     return showDialog<String>(

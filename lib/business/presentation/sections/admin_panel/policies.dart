@@ -1,6 +1,6 @@
 import 'package:cat_tourism_hub/business/providers/partner_acct_provider.dart';
 import 'package:cat_tourism_hub/core/constants/strings/strings.dart';
-import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
+import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/core/utils/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -80,45 +80,45 @@ class _PoliciesState extends State<Policies> {
   Widget build(BuildContext context) {
     return Consumer<PartnerAcctProvider>(
       builder: (context, value, widget) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: _isEditMode
-                      ? TextFormField(
-                          controller: _policyController,
-                          style: Theme.of(context).textTheme.bodySmall,
-                          expands: true,
-                          maxLines: null,
-                          textAlignVertical: TextAlignVertical.top,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Enter your policy here...',
-                            alignLabelWithHint: true,
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            contentPadding: EdgeInsets.only(
-                                top: 16.0, left: 16.0, right: 16.0),
-                          ),
-                          onChanged: (value) {
-                            setState(() {});
-                          },
-                        )
-                      : SingleChildScrollView(
-                          child: SizedBox(
-                            height: MediaQuery.sizeOf(context).height,
-                            width: MediaQuery.sizeOf(context).width,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 20),
+              Expanded(
+                child: _isEditMode
+                    ? TextFormField(
+                        controller: _policyController,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        expands: true,
+                        maxLines: null,
+                        textAlignVertical: TextAlignVertical.top,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter your policy here...',
+                          alignLabelWithHint: true,
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          contentPadding: EdgeInsets.only(
+                              top: 16.0, left: 16.0, right: 16.0),
+                        ),
+                        onChanged: (value) {
+                          setState(() {});
+                        },
+                      )
+                    : SingleChildScrollView(
+                        child: SizedBox(
+                          height: MediaQuery.sizeOf(context).height,
+                          width: MediaQuery.sizeOf(context).width,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(value.establishment!.policies ?? ''),
                           ),
                         ),
-                ),
-              ],
-            ),
+                      ),
+              ),
+            ],
           ),
         ),
       ),

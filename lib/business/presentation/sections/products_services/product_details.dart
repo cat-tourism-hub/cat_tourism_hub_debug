@@ -1,5 +1,5 @@
 import 'package:cat_tourism_hub/core/utils/app_regex.dart';
-import 'package:cat_tourism_hub/core/utils/auth_provider.dart';
+import 'package:cat_tourism_hub/core/auth/auth_provider.dart';
 import 'package:cat_tourism_hub/business/presentation/sections/products_services/components/price_field.dart';
 import 'package:cat_tourism_hub/business/data/photo.dart';
 import 'package:cat_tourism_hub/core/product.dart';
@@ -112,17 +112,18 @@ class _ProductDetailsState extends State<ProductDetails> {
       tag: _tag.text,
     );
     try {
-      String response = await value2.addEditProduct(
+      var response = await value2.editProduct(
           AppStrings.edit,
           widget.product?.id,
           value3.token ?? '',
           value3.user?.uid ?? '',
           value1.establishment!,
           product);
-
-      SnackbarHelper.showSnackBar(response);
+      print(response);
+      SnackbarHelper.showSnackBar(response,
+          isError: response.statusCode != 201);
     } catch (e) {
-      FirebaseCrashlytics.instance.log('IDK Error in Add/Edit Product');
+      FirebaseCrashlytics.instance.log('IDK Error in Edit Product');
     }
 
     setState(() {
@@ -429,19 +430,28 @@ class _ProductDetailsState extends State<ProductDetails> {
                 _buildIncludedInThePrice(),
                 const Gap(30),
 
-                Tooltip(
-                  message:
-                      'Tag is used to identify what type of product/service it is.',
-                  verticalOffset: -20, // Moves the tooltip above the "Tag" text
-                  preferBelow:
-                      false, // Places the tooltip above the TextFormField
-                  child: TextFormField(
-                    controller: _tag,
-                    decoration: InputDecoration(
-                      labelText: AppStrings.tag,
-                      labelStyle: Theme.of(context).textTheme.labelMedium,
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        controller: _tag,
+                        decoration: InputDecoration(
+                          hintText: AppStrings.room,
+                          labelText: AppStrings.tag,
+                          labelStyle: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ),
                     ),
-                  ),
+                    const Tooltip(
+                        message:
+                            'Tag is used to identify what type of product/service it is.',
+                        verticalOffset:
+                            -20, // Moves the tooltip above the "Tag" text
+                        preferBelow:
+                            false, // Places the tooltip beside the TextFormField
+                        child: Icon(Icons.info_outline)),
+                  ],
                 ),
 
                 const Gap(30),

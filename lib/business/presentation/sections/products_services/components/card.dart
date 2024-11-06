@@ -24,13 +24,19 @@ class BusinessProductCard extends BaseProductCard {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-                child: ElevatedButton(
-                    onPressed: () => onEdit(product),
-                    child: const Text(AppStrings.edit))),
+              child: TextButton.icon(
+                label: const Text(AppStrings.edit),
+                icon: const Icon(Icons.edit),
+                onPressed: () => onEdit(product),
+              ),
+            ),
             const Gap(10),
             Expanded(
-                child: ElevatedButton(
-                    onPressed: () {}, child: const Text('Archive')))
+              child: TextButton.icon(
+                  label: const Text('Archive'),
+                  icon: const Icon(Icons.archive),
+                  onPressed: () {}),
+            ),
           ],
         )
       ],
